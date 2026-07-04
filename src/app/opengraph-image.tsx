@@ -1,4 +1,6 @@
 import { ImageResponse } from "next/og";
+import { readFile } from "node:fs/promises";
+import { join } from "node:path";
 
 export const alt = "Build Flow | 고객을 만드는 웹 솔루션";
 export const size = { width: 1200, height: 630 };
@@ -6,23 +8,8 @@ export const contentType = "image/png";
 
 async function loadKoreanFont(): Promise<ArrayBuffer | null> {
   try {
-    const chars =
-      "Build Flow 홈페이지가아니라고객을만드는디지털시스템구축프로젝트재계약률운영경력웹솔루션";
-    const cssRes = await fetch(
-      `https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@700;900&text=${encodeURIComponent(chars)}`,
-      {
-        headers: {
-          "User-Agent":
-            "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/120.0.0.0 Safari/537.36",
-        },
-      }
-    );
-    const css = await cssRes.text();
-    const fontUrl = css.match(
-      /url\((https:\/\/fonts\.gstatic\.com[^)]+)\)/
-    )?.[1];
-    if (!fontUrl) return null;
-    return fetch(fontUrl).then((r) => r.arrayBuffer());
+    const buf = await readFile(join(process.cwd(), "public/fonts/NotoSansKR-Bold.woff"));
+    return buf.buffer.slice(buf.byteOffset, buf.byteOffset + buf.byteLength) as ArrayBuffer;
   } catch {
     return null;
   }

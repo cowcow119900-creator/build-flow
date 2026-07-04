@@ -10,7 +10,7 @@ export default function FAQSection() {
   const [open, setOpen] = useState<number | null>(0);
 
   return (
-    <section className="py-24 bg-white" id="faq">
+    <section className="pt-16 pb-24 bg-white" id="faq">
       <div className="section-container">
         <div className="max-w-3xl mx-auto">
           <AnimatedSection className="text-center mb-12">

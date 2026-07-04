@@ -20,7 +20,7 @@ const STATS = [
 
 export default function WhyUsSection() {
   return (
-    <section className="py-24 bg-gray-50" id="why-us">
+    <section className="pt-20 pb-16 bg-gray-50" id="why-us">
       <div className="section-container">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
           {/* Left */}

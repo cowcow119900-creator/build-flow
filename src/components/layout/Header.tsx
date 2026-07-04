@@ -21,15 +21,16 @@ const NAV_LINKS = [
 
 export default function Header() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [scrolled, setScrolled] = useState(!isHome);
   const reduced = useReducedMotion();
   const { scrollY } = useScroll();
   const hoverRef = useRef<string | null>(null);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(latest > 20);
+    setScrolled(!isHome || latest > 20);
   });
 
   // Lock body scroll when mobile menu open
@@ -42,10 +43,11 @@ export default function Header() {
     return () => { document.body.style.overflow = ""; };
   }, [isOpen]);
 
-  // Close menu on route change
-  useEffect(() => { setIsOpen(false); }, [pathname]);
-
-  const isHome = pathname === "/";
+  // Close menu on route change; ensure white header on non-home pages after navigation
+  useEffect(() => {
+    setIsOpen(false);
+    if (pathname !== "/") setScrolled(true);
+  }, [pathname]);
 
   return (
     <>

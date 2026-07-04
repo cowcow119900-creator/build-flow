@@ -121,7 +121,7 @@ export default function ProcessTimeline() {
   const progress = ((activeStep + 1) / STEPS.length) * 100;
 
   return (
-    <section ref={sectionRef} className="py-24 bg-white overflow-hidden" id="process">
+    <section ref={sectionRef} className="pt-16 pb-24 bg-white overflow-hidden" id="process">
       <div className="section-container">
         {/* Header */}
         <div className="text-center mb-14">
@@ -131,7 +131,7 @@ export default function ProcessTimeline() {
           <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
             투명하고 예측 가능한 진행 과정
           </h2>
-          <p className="text-gray-500 text-lg max-w-lg mx-auto">
+          <p className="text-gray-500 text-lg max-w-sm mx-auto">
             각 단계에서 무엇을 하는지, 얼마나 걸리는지 미리 알 수 있습니다.
           </p>
         </div>

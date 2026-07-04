@@ -19,8 +19,9 @@ export default function EstimatePage() {
           <h1 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
             무료 견적 계산기
           </h1>
-          <p className="text-gray-500 text-lg max-w-lg mx-auto">
+          <p className="text-gray-500 text-lg max-w-md mx-auto">
             원하는 기능을 선택하면 예상 제작 비용과 기간을 바로 알 수 있습니다.
+            <br className="hidden sm:block" />
             결과는 상담 신청 시 자동으로 반영됩니다.
           </p>
         </div>

@@ -20,7 +20,7 @@ export default function ServicesSection() {
           <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
             어떤 웹 솔루션이 필요하신가요?
           </h2>
-          <p className="text-gray-500 text-lg max-w-xl mx-auto">
+          <p className="text-gray-500 text-lg max-w-md mx-auto">
             원하는 서비스를 선택하면 포트폴리오와 예상 비용을 바로 확인할 수 있습니다.
           </p>
         </AnimatedSection>

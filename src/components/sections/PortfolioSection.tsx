@@ -177,7 +177,7 @@ function PortfolioCard({ item }: { item: typeof PORTFOLIO_ITEMS[0] }) {
 
 export default function PortfolioSection() {
   return (
-    <section className="py-24 bg-gray-50" id="portfolio">
+    <section className="pt-16 pb-24 bg-gray-50" id="portfolio">
       <div className="section-container">
         <AnimatedSection className="text-center mb-14">
           <span className="inline-block bg-blue-50 text-blue-600 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">

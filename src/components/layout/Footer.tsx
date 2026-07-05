@@ -5,9 +5,9 @@ export default function Footer() {
   return (
     <footer className="bg-gray-900 text-gray-400 border-t border-white/10">
       <div className="section-container pt-14 pb-24 md:pb-16">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-10">
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
           {/* Brand */}
-          <div className="md:col-span-2">
+          <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
               <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
                 <span className="text-white font-black text-sm">BF</span>

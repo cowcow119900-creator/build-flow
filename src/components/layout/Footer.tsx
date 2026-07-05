@@ -3,8 +3,8 @@ import { COMPANY_NAME, COMPANY_EMAIL, COMPANY_PHONE } from "@/lib/constants";
 
 export default function Footer() {
   return (
-    <footer className="bg-gray-900 text-gray-400 border-t border-white/10">
-      <div className="section-container pt-14 pb-24 md:pb-16">
+    <footer className="bg-gray-900 text-gray-400 border-t border-white/10 pt-14 pb-24 md:pb-16">
+      <div className="section-container">
         <div className="grid grid-cols-2 md:grid-cols-3 gap-10">
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">

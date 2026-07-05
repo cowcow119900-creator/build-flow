@@ -121,7 +121,7 @@ export default function ProcessTimeline() {
   const progress = ((activeStep + 1) / STEPS.length) * 100;
 
   return (
-    <section ref={sectionRef} className="pt-16 pb-24 bg-white overflow-hidden" id="process">
+    <section ref={sectionRef} className="pt-16 pb-24 bg-white" id="process">
       <div className="section-container">
         {/* Header */}
         <div className="text-center mb-14">

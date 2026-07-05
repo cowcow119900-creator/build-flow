@@ -16,8 +16,8 @@ const FINAL_STATS = [
 
 export default function CTABanner() {
   return (
-    <section className="pt-24 pb-28 gradient-navy relative overflow-hidden">
-      <div className="absolute inset-0 pointer-events-none">
+    <section className="pt-24 pb-28 gradient-navy relative">
+      <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
           className="absolute top-0 left-1/4 w-96 h-96 bg-blue-500/10 rounded-full blur-3xl"
           animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}

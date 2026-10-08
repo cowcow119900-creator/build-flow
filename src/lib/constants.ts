@@ -1,7 +1,14 @@
 export const COMPANY_NAME = "Build Flow";
 export const COMPANY_TAGLINE = "홈페이지가 아니라, 고객을 만드는 디지털 시스템을 만듭니다.";
-export const COMPANY_PHONE = "02-1234-5678";
-export const COMPANY_EMAIL = "hello@buildflow.kr";
+export const COMPANY_PHONE = "010-5757-3980";
+export const COMPANY_EMAIL = "cowcow11990@gmail.com";
+
+export const BUSINESS_INFO = {
+  name: "비에프스튜디오",
+  ceo: "박찬우",
+  registrationNumber: "273-12-01987",
+  address: "전북특별자치도 익산시 선화로11길 22, 302호(모현동1가)",
+};
 export const KAKAO_LINK = "#";
 
 export const SERVICES = [

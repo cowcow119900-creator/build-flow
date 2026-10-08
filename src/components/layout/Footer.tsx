@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { COMPANY_NAME, COMPANY_EMAIL, COMPANY_PHONE } from "@/lib/constants";
+import Image from "next/image";
+import { COMPANY_NAME, COMPANY_EMAIL, COMPANY_PHONE, BUSINESS_INFO } from "@/lib/constants";
 
 export default function Footer() {
   return (
@@ -9,8 +10,8 @@ export default function Footer() {
           {/* Brand */}
           <div className="col-span-2 md:col-span-1">
             <div className="flex items-center gap-2 mb-4">
-              <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                <span className="text-white font-black text-sm">BF</span>
+              <div className="w-9 h-9 rounded-lg overflow-hidden">
+                <Image src="/logo-mark.png" alt="" width={36} height={36} />
               </div>
               <span className="text-white font-black text-lg">{COMPANY_NAME}</span>
             </div>
@@ -65,8 +66,17 @@ export default function Footer() {
           </div>
         </div>
 
-        <div className="mt-12 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
-          <p>© 2025 {COMPANY_NAME}. All rights reserved.</p>
+        <div className="mt-12 pt-6 border-t border-gray-800 text-xs text-gray-500 leading-relaxed">
+          <p className="flex flex-wrap gap-x-3 gap-y-1">
+            <span>상호 {BUSINESS_INFO.name}</span>
+            <span>대표 {BUSINESS_INFO.ceo}</span>
+            <span>사업자등록번호 {BUSINESS_INFO.registrationNumber}</span>
+          </p>
+          <p className="mt-1">주소 {BUSINESS_INFO.address}</p>
+        </div>
+
+        <div className="mt-6 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
+          <p>© {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.</p>
           <div className="flex gap-4">
             <Link href="/privacy" className="hover:text-gray-400">개인정보처리방침</Link>
             <Link href="/terms" className="hover:text-gray-400">이용약관</Link>

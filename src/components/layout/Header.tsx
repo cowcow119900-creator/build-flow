@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 import { Menu, X, ArrowRight } from "lucide-react";
@@ -81,11 +82,11 @@ export default function Header() {
               {/* Logo */}
               <Link href="/" className="flex items-center gap-2 group">
                 <motion.div
-                  className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center"
+                  className="w-9 h-9 rounded-lg overflow-hidden"
                   whileHover={{ scale: 1.08, rotate: -3 }}
                   transition={{ type: "spring", stiffness: 500, damping: 20 }}
                 >
-                  <span className="text-white font-black text-sm">BF</span>
+                  <Image src="/logo-mark.png" alt="" width={36} height={36} preload />
                 </motion.div>
                 <span
                   className={`font-black text-lg tracking-tight transition-colors ${
@@ -199,8 +200,8 @@ export default function Header() {
               <div className="px-4 pb-10">
                 {/* Logo */}
                 <div className="flex items-center gap-2 py-4 mb-2 border-b border-gray-100">
-                  <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <span className="text-white font-black text-sm">BF</span>
+                  <div className="w-9 h-9 rounded-lg overflow-hidden">
+                    <Image src="/logo-mark.png" alt="" width={36} height={36} />
                   </div>
                   <span className="font-black text-lg text-gray-900">{COMPANY_NAME}</span>
                 </div>

@@ -2,10 +2,13 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { getFeaturedPortfolioItems, getPortfolioItem, PORTFOLIO_ITEMS } from "../build/unit-tests/portfolio.js";
 
-test("모든 사례를 고유 ID로 조회하고 상세 콘텐츠가 있는 사례를 구분한다", () => {
+test("모든 사례를 고유 ID로 조회하고 상세 콘텐츠를 제공한다", () => {
   assert.equal(new Set(PORTFOLIO_ITEMS.map(({ id }) => id)).size, 6);
-  assert.equal(PORTFOLIO_ITEMS.filter(({ detail }) => detail).length, 2);
-  for (const item of PORTFOLIO_ITEMS) assert.equal(getPortfolioItem(item.id), item);
+  for (const item of PORTFOLIO_ITEMS) {
+    assert.equal(getPortfolioItem(item.id), item);
+    assert.ok(item.detail?.journey.length, item.id);
+    assert.ok(item.detail?.questions.length, item.id);
+  }
   for (const id of ["constructor", "toString", "__proto__", "missing"]) assert.equal(getPortfolioItem(id), undefined);
 });
 

@@ -20,7 +20,7 @@ export default function PortfolioPage() {
             웹 솔루션 구축 예시
           </h1>
           <p className="text-gray-500 text-lg mb-2">
-            가상의 사업 과제에 맞춰 어떤 기능을 설계할 수 있는지 소개합니다.
+            사례별 설계 과정을 살펴보고 예약, 견적 작성 등 핵심 기능을 직접 체험해 보세요.
           </p>
           <p className="text-gray-400 text-sm">
             기간과 성과 수치는 가상 시나리오의 예시입니다.

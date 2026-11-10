@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { ArrowDownRight, ArrowLeft, ArrowRight, Clock, Layers, CheckCircle } from "lucide-react";
+import { ArrowDownRight, ArrowLeft, ArrowRight, ChevronDown, Clock, Layers, CheckCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import { FlowStory } from "@/components/flow/FlowStory";
 import { getPortfolioFlow } from "@/components/flow/PortfolioFlowScenes";
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props) {
   if (!item) return { title: "페이지를 찾을 수 없습니다 | Build Flow" };
   return {
     title: `${item.title} | Build Flow 포트폴리오`,
-    description: `${item.title}의 설계 과정과 주요 기능을 소개하는 가상 구축 예시입니다.`,
+    description: `${item.title}의 설계 배경과 사용 흐름을 살펴보고 핵심 기능을 체험하는 가상 구축 예시입니다.`,
   };
 }
 
@@ -33,6 +33,13 @@ export default async function PortfolioDetailPage({ params }: Props) {
   const systemPreview = getPortfolioSystemPreview(item.id);
   const features = detail?.features ?? item.features.map((name) => ({ name, desc: undefined }));
   const results = detail?.results ?? [item.result];
+  const caseIndex = PORTFOLIO_ITEMS.indexOf(item);
+  const nextCases = PORTFOLIO_ITEMS.concat(PORTFOLIO_ITEMS).slice(caseIndex + 1, caseIndex + 3);
+  const overview = detail ? [
+    { title: "해결해야 할 문제", description: detail.problem },
+    { title: "분석과 접근 방향", description: detail.analysis },
+    { title: "설계 방향", description: detail.design },
+  ] : [];
 
   return (
     <div className="bg-gray-50 pb-20">
@@ -67,14 +74,24 @@ export default async function PortfolioDetailPage({ params }: Props) {
                 </div>
               </dl>
               <p className="mt-3 text-xs text-slate-400">가상 시나리오 기반 데모</p>
-              {systemPreview && (
-                <a
-                  href="#system-preview"
-                  className="mt-2 inline-flex min-h-11 items-center gap-2 rounded text-sm font-semibold text-cyan-200 underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-200"
-                >
-                  시스템 화면 미리보기 <ArrowDownRight size={16} aria-hidden="true" />
-                </a>
-              )}
+              <div className="mt-2 flex flex-wrap gap-x-5">
+                {systemPreview && (
+                  <a
+                    href="#system-preview"
+                    className="inline-flex min-h-11 items-center gap-2 rounded text-sm font-semibold text-cyan-200 underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-200"
+                  >
+                    시스템 직접 체험 <ArrowDownRight size={16} aria-hidden="true" />
+                  </a>
+                )}
+                {detail && (
+                  <a
+                    href="#case-study"
+                    className="inline-flex min-h-11 items-center gap-2 rounded text-sm font-semibold text-slate-200 underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-200"
+                  >
+                    설계 배경 읽기 <ArrowDownRight size={16} aria-hidden="true" />
+                  </a>
+                )}
+              </div>
             </div>
 
             {flow && <FlowStory {...flow} autoPlay className="min-w-0" />}
@@ -87,31 +104,35 @@ export default async function PortfolioDetailPage({ params }: Props) {
         <div className="grid grid-cols-1 gap-6 pt-8 lg:grid-cols-3 lg:gap-8 lg:pt-10">
           <div className="lg:col-span-2 space-y-8">
             {detail && (
-              <>
-                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                  <h2 className="text-lg font-black text-gray-900 mb-3 flex items-center gap-2">
-                    <span aria-hidden="true" className="w-7 h-7 bg-orange-100 text-orange-600 rounded-lg flex items-center justify-center text-xs font-black">문</span>
-                    해결해야 할 문제
-                  </h2>
-                  <p className="text-gray-600 leading-relaxed">{detail.problem}</p>
+              <section id="case-study" aria-labelledby="case-study-title" className="scroll-mt-24 rounded-2xl border border-slate-200 bg-white p-5 sm:p-7">
+                <p className="flow-label mb-2">설계 배경</p>
+                <h2 id="case-study-title" className="text-2xl font-black tracking-tight text-slate-950">어떻게 문제를 풀었나요?</h2>
+                <div className="mt-4 divide-y divide-slate-200">
+                  {overview.map(({ title, description }) => (
+                    <div key={title} className="py-4 first:pt-0 last:pb-0">
+                      <h3 className="mb-1.5 text-base font-bold text-slate-950">{title}</h3>
+                      <p className="text-sm leading-7 text-slate-700 sm:text-base">{description}</p>
+                    </div>
+                  ))}
                 </div>
+              </section>
+            )}
 
-                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                  <h2 className="text-lg font-black text-gray-900 mb-3 flex items-center gap-2">
-                    <span aria-hidden="true" className="w-7 h-7 bg-blue-100 text-blue-600 rounded-lg flex items-center justify-center text-xs font-black">분</span>
-                    분석과 접근 방향
-                  </h2>
-                  <p className="text-gray-600 leading-relaxed">{detail.analysis}</p>
-                </div>
-
-                <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-sm">
-                  <h2 className="text-lg font-black text-gray-900 mb-3 flex items-center gap-2">
-                    <span aria-hidden="true" className="w-7 h-7 bg-purple-100 text-purple-600 rounded-lg flex items-center justify-center text-xs font-black">설</span>
-                    설계 방향
-                  </h2>
-                  <p className="text-gray-600 leading-relaxed">{detail.design}</p>
-                </div>
-              </>
+            {detail && (
+              <section aria-labelledby="case-journey-title">
+                <h2 id="case-journey-title" className="mb-4 text-xl font-black tracking-tight text-slate-950">서비스 사용 흐름</h2>
+                <ol className="divide-y divide-slate-200 border-y border-slate-200">
+                  {detail.journey.map(({ title, desc }, index) => (
+                    <li key={title} className="grid grid-cols-[auto_minmax(0,1fr)] gap-3 py-4 sm:gap-4">
+                      <span className="grid size-8 place-items-center rounded-full bg-blue-100 text-sm font-bold text-blue-800" aria-hidden="true">{index + 1}</span>
+                      <div>
+                        <h3 className="mb-1 font-bold text-slate-900">{title}</h3>
+                        <p className="text-sm leading-relaxed text-slate-700">{desc}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ol>
+              </section>
             )}
 
             {/* Features */}
@@ -132,6 +153,23 @@ export default async function PortfolioDetailPage({ params }: Props) {
                 ))}
               </ul>
             </div>
+
+            {detail && (
+              <section aria-labelledby="case-questions-title">
+                <h2 id="case-questions-title" className="mb-4 text-xl font-black tracking-tight text-slate-950">구축 전 자주 묻는 질문</h2>
+                <div className="divide-y divide-slate-200 rounded-xl border border-slate-200 bg-white">
+                  {detail.questions.map(({ question, answer }) => (
+                    <details key={question} className="group px-4 sm:px-5">
+                      <summary className="flex min-h-12 cursor-pointer list-none items-center justify-between gap-3 rounded py-3 text-sm font-bold text-slate-900 hover:text-blue-700 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700 [&::-webkit-details-marker]:hidden">
+                        {question}
+                        <ChevronDown size={16} className="shrink-0 text-slate-500 group-open:rotate-180" aria-hidden="true" />
+                      </summary>
+                      <p className="pb-4 text-sm leading-relaxed text-slate-700">{answer}</p>
+                    </details>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
 
           {/* Sidebar */}
@@ -178,6 +216,22 @@ export default async function PortfolioDetailPage({ params }: Props) {
             </div>
           </div>
         </div>
+        <section aria-labelledby="next-cases-title" className="mt-10 border-t border-slate-200 pt-7 sm:mt-12 sm:pt-9">
+          <h2 id="next-cases-title" className="mb-4 text-xl font-black tracking-tight text-slate-950">다른 시스템도 둘러보세요</h2>
+          <ul className="grid gap-3 sm:grid-cols-2">
+            {nextCases.map((nextCase) => (
+              <li key={nextCase.id}>
+                <Link href={`/portfolio/${nextCase.id}`} className="group flex h-full items-center justify-between gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3.5 hover:border-blue-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-700">
+                  <span>
+                    <span className="block text-xs font-semibold text-blue-700">{nextCase.category} · {nextCase.industry}</span>
+                    <span className="mt-0.5 block text-sm font-bold text-slate-900 group-hover:text-blue-700">{nextCase.title}</span>
+                  </span>
+                  <ArrowRight size={17} className="shrink-0 text-blue-700" aria-hidden="true" />
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
       </div>
     </div>
   );

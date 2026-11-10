@@ -1,6 +1,9 @@
-import { SERVICES, type ServiceId } from "./constants";
+import { SERVICES } from "./constants";
 
-export const PURPOSES = SERVICES.map(({ id, estimate, priceFrom }) => ({
+const estimatedServices = SERVICES.filter((service) => service.estimate !== null);
+type EstimatedServiceId = (typeof estimatedServices)[number]["id"];
+
+export const PURPOSES = estimatedServices.map(({ id, estimate, priceFrom }) => ({
   value: id,
   label: estimate.label,
   icon: estimate.icon,
@@ -49,15 +52,15 @@ export const BUDGETS = [
 export type ExtraFeature = (typeof EXTRA_FEATURES)[number]["value"];
 
 export type EstimateState = {
-  purpose: ServiceId | "";
+  purpose: EstimatedServiceId | "";
   designLevel: (typeof DESIGN_LEVELS)[number]["value"];
   features: ExtraFeature[];
   timeline: (typeof TIMELINES)[number]["value"];
   budget: (typeof BUDGETS)[number]["value"];
 } & Record<(typeof CORE_FEATURES)[number]["key"], boolean>;
 
-export function normalizeServiceId(value: string | null): ServiceId | "" {
-  return SERVICES.find((service) => service.id === value || service.estimate.legacyId === value)?.id ?? "";
+export function normalizeServiceId(value: string | null): EstimatedServiceId | "" {
+  return estimatedServices.find((service) => service.id === value || service.estimate.legacyId === value)?.id ?? "";
 }
 
 export function createEstimateState(purpose: EstimateState["purpose"]): EstimateState {
@@ -75,7 +78,7 @@ export function createEstimateState(purpose: EstimateState["purpose"]): Estimate
 }
 
 export function computeRange(state: EstimateState) {
-  const service = SERVICES.find(({ id }) => id === state.purpose);
+  const service = estimatedServices.find(({ id }) => id === state.purpose);
   if (!service) return { min: 0, max: 0, weeks: "-", difficulty: "-", approach: "-" };
 
   const design = DESIGN_LEVELS.find(({ value }) => value === state.designLevel);
@@ -117,7 +120,13 @@ export function getEstimateContactHref(state: EstimateState) {
 }
 
 export function getEstimateContactDetails(params: URLSearchParams) {
-  const purpose = normalizeServiceId(params.get("purpose"));
+  const requestedServiceId = params.get("purpose");
+  const requestedService = SERVICES.find(({ id }) => id === requestedServiceId);
+  if (requestedService?.estimate === null) {
+    return [{ label: "제작 유형", value: requestedService.title }];
+  }
+
+  const purpose = normalizeServiceId(requestedServiceId);
   const service = PURPOSES.find(({ value }) => value === purpose);
   if (!service) return [];
 

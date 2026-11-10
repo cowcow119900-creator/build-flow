@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import {
-  AppWindow, Bot, CalendarCheck, ChevronRight, Layers, MousePointer2,
+  AppWindow, Bot, CalendarCheck, ChartNoAxesCombined, ChevronRight, Layers, MousePointer2,
   RefreshCw, Settings, ShoppingCart, type LucideIcon,
 } from "lucide-react";
 import { trackEvent } from "@/lib/utils";
@@ -16,6 +16,7 @@ const ICON_MAP: Record<string, LucideIcon> = {
   RefreshCw,
   Code2: Layers,
   Bot,
+  ChartNoAxesCombined,
 };
 
 type ServiceData = {
@@ -24,7 +25,7 @@ type ServiceData = {
   title: string;
   desc: string;
   features: readonly string[];
-  priceFrom: number;
+  priceFrom: number | null;
 };
 
 export default function InteractiveServiceCard({ svc }: { svc: ServiceData }) {
@@ -51,9 +52,13 @@ export default function InteractiveServiceCard({ svc }: { svc: ServiceData }) {
       </ul>
 
       <div className="mt-auto flex flex-wrap items-center justify-between gap-x-2 border-t border-slate-200 py-0.5">
-        <p className="py-1.5 text-xs font-semibold whitespace-nowrap text-slate-800">
-          <strong className="text-lg font-extrabold tabular-nums text-blue-700">{svc.priceFrom}</strong>만원부터
-        </p>
+        {svc.priceFrom === null ? (
+          <p className="py-1.5 text-xs font-semibold text-slate-800">맞춤 견적</p>
+        ) : (
+          <p className="py-1.5 text-xs font-semibold whitespace-nowrap text-slate-800">
+            <strong className="text-lg font-extrabold tabular-nums text-blue-700">{svc.priceFrom}</strong>만원부터
+          </p>
+        )}
         <div className="flex items-center gap-2.5">
           <Link
             href={`/services#${svc.id}`}
@@ -63,11 +68,11 @@ export default function InteractiveServiceCard({ svc }: { svc: ServiceData }) {
             자세히 보기
           </Link>
           <Link
-            href={`/estimate?service=${svc.id}`}
+            href={svc.priceFrom === null ? `/contact?purpose=${svc.id}` : `/estimate?service=${svc.id}`}
             className="inline-flex min-h-11 min-w-11 items-center justify-center gap-0.5 rounded-sm text-xs font-bold whitespace-nowrap text-blue-700 underline-offset-4 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-            onClick={() => trackEvent("estimate_start", { service: svc.id })}
+            onClick={() => trackEvent(svc.priceFrom === null ? "cta_click" : "estimate_start", { service: svc.id })}
           >
-            견적 계산 <ChevronRight size={14} aria-hidden="true" />
+            {svc.priceFrom === null ? "상담 신청" : "견적 계산"} <ChevronRight size={14} aria-hidden="true" />
           </Link>
         </div>
       </div>

@@ -100,6 +100,15 @@ export const SERVICES = [
     priceFrom: 180,
     estimate: { legacyId: "ai", label: "AI 자동화", icon: "🤖", max: 450, weeks: "3~6주", approach: "단계별 검수" },
   },
+  {
+    id: "ad-data-research",
+    icon: "ChartNoAxesCombined",
+    title: "광고 데이터 리서치·분석 툴",
+    desc: "채널별 광고 데이터를 정리해 캠페인 성과를 비교하는 맞춤형 분석 도구",
+    features: ["광고 데이터 파일 통합", "캠페인·채널 비교", "CTR·CPA·ROAS 집계", "누락 데이터 점검"],
+    priceFrom: null,
+    estimate: null,
+  },
 ] as const;
 
 export type Service = (typeof SERVICES)[number];

@@ -22,7 +22,7 @@ export default function ServicesSection() {
           </p>
         </header>
 
-        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-slate-300 bg-slate-200 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="grid grid-cols-1 gap-px overflow-hidden rounded-lg border border-slate-300 bg-slate-200 sm:grid-cols-2 lg:grid-cols-3">
           {SERVICES.map((svc) => (
             <InteractiveServiceCard key={svc.id} svc={svc} />
           ))}

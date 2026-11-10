@@ -7,6 +7,13 @@ import {
 
 test("모든 서비스 ID와 기존 주소의 ID가 동일한 견적을 연다", () => {
   for (const service of SERVICES) {
+    if (service.estimate === null) {
+      assert.equal(normalizeServiceId(service.id), "");
+      assert.deepEqual(getEstimateContactDetails(new URLSearchParams({ purpose: service.id })), [
+        { label: "제작 유형", value: service.title },
+      ]);
+      continue;
+    }
     assert.equal(normalizeServiceId(service.id), service.id);
     assert.equal(normalizeServiceId(service.estimate.legacyId), service.id);
     const range = computeRange(createEstimateState(service.id));

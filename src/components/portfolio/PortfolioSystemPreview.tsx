@@ -1,4 +1,6 @@
 import type { ComponentType } from "react";
+import { AdDataResearchScreen } from "./AdDataResearchSample";
+import { ERPSystemScreen } from "./ERPSystemSample";
 import {
   FitnessSystemScreen,
   MedicalSystemScreen,
@@ -60,6 +62,20 @@ const previews = new Map<string, SystemPreview>([
     description: "고객이 휴대폰에서 방문 인원과 예약 시간을 고르고, 마감된 시간의 대기 옵션을 확인합니다.",
     steps: ["방문 인원과 시간 선택", "예약 확정 또는 웨이팅 등록 확인"],
     screen: RestaurantSystemScreen,
+  }],
+  ["erp-inventory", {
+    workspace: "N유통사 재고·발주 ERP",
+    title: "발주·입고부터 판매 정산까지",
+    description: "입고 후 재고가 바뀌는 과정과 판매 주문을 실제 입금 내역과 대조하는 과정을 한 ERP에서 체험해 보세요.",
+    steps: ["발주서를 만들고 입고 후 재고 확인", "판매 정산에서 샘플 주문·입금 내역 대조", "차이 건을 열어 계산 근거와 원본 확인"],
+    screen: ERPSystemScreen,
+  }],
+  ["ad-data-research", {
+    workspace: "광고 데이터 리서치·분석 툴",
+    title: "채널이 달라도 같은 기준으로 비교",
+    description: "검색 광고와 소셜 광고의 샘플 보고서를 한 화면에서 살펴보고 캠페인 성과와 누락 데이터를 확인해 보세요.",
+    steps: ["샘플 광고 데이터 불러오기", "채널을 선택해 캠페인과 합계 비교", "캠페인을 열어 지표 계산 근거와 누락값 확인"],
+    screen: AdDataResearchScreen,
   }],
 ]);
 

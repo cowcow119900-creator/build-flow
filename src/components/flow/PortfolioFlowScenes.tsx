@@ -364,6 +364,101 @@ const portfolioFlows = new Map<string, PortfolioFlow>([
       </>),
     ],
   }],
+  ["erp-inventory", {
+    eyebrow: "ERP · 도매·유통",
+    token: "PO-001",
+    stages: [
+      stage("발주 기록과 재고 장부를 대조합니다", "구매팀의 발주 목록과 창고의 재고 장부를 비교해 입고 수량이 누락되거나 중복으로 기록되는 지점을 찾습니다.", 96, 134, <>
+        <Panel x={36} y={44} width={127} height={128} label="구매팀 기록" />
+        <Row x={47} y={86} width={105}>포장 박스</Row>
+        <Socket x={96} y={134} />
+        <path d="M168 126h20" stroke={colors.line} strokeDasharray="3 3" />
+        <Panel x={194} y={44} width={127} height={128} label="창고 장부" />
+        <Row x={205} y={86} width={105}>입고 수량</Row>
+        <Row x={205} y={121} width={105}>현재고 24개</Row>
+      </>),
+      stage("품목과 수량을 한 발주서에 담습니다", "포장 박스 12개를 발주서에 담습니다. 구매팀과 창고는 같은 발주 번호로 입고 예정 품목을 확인할 수 있습니다.", 244, 139, <>
+        <Panel x={47} y={37} width={264} height={145} label="발주 등록 화면" />
+        <Row x={61} y={86} width={107}>포장 박스</Row>
+        <Row x={61} y={122} width={107}>발주 수량 12개</Row>
+        <Arrow x={174} y={136} width={25} />
+        <Row x={204} y={86} width={93}>입고 대기</Row>
+        <Socket x={244} y={139} />
+      </>),
+      stage("입고를 반영하고 정산 자료를 맞춥니다", "창고에서 입고를 확정하면 발주 상태와 재고 수량을 갱신합니다. 판매 정산에서는 주문 엑셀과 입금 엑셀을 주문번호로 연결합니다.", 96, 151, <>
+        <Panel x={30} y={40} width={133} height={139} label="창고 재고" />
+        <Row x={41} y={82} width={111}>입고 확정</Row>
+        <Row x={41} y={112} width={111}>현재고 갱신</Row>
+        <Socket x={96} y={151} />
+        <Panel x={178} y={40} width={151} height={139} label="판매 정산 자료" />
+        <Row x={189} y={82} width={129}>주문 엑셀</Row>
+        <Row x={189} y={112} width={129}>입금 엑셀</Row>
+        <Label x={198} y={159}>주문번호로 연결</Label>
+      </>),
+      stage("중복 입고와 정산 차액을 검수합니다", "입고가 한 번만 반영되는지, 납품 수량을 정정한 이력이 남는지 확인합니다. 판매 정산에서는 연결되는 입금 기록이 없거나 예정액과 실제 입금액이 다른 주문을 골라냅니다.", 259, 57, <>
+        <Panel x={53} y={40} width={254} height={143} label="입고 · 정산 검수" />
+        <Socket x={259} y={57} />
+        <Checks x={67} y={82} width={226} items={["중복 입고 방지", "주문번호 확인", "예정액과 입금액 대조"]} />
+      </>),
+      stage("현재고와 판매 정산 결과를 확인합니다", "PO-001 입고 후 포장 박스 재고는 24개에서 36개로 늘어납니다. 판매 정산은 예정액 85,000원과 입금액 83,000원을 비교해 차액 2,000원을 표시합니다.", 91, 152, <>
+        <Panel x={30} y={40} width={121} height={142} label="재고 · 입고 현황" />
+        <Row x={41} y={82} width={99}>입고 완료</Row>
+        <Row x={41} y={112} width={99}>현재고 36개</Row>
+        <Socket x={91} y={152} />
+        <Panel x={166} y={40} width={163} height={142} label="판매 정산 결과" />
+        <Row x={177} y={82} width={141}>예정액 85,000원</Row>
+        <Row x={177} y={112} width={141}>입금액 83,000원</Row>
+        <Row x={177} y={142} width={141}>차액 2,000원</Row>
+      </>),
+    ],
+  }],
+  ["ad-data-research", {
+    eyebrow: "데이터 분석 · 디지털 마케팅",
+    token: "캠페인",
+    stages: [
+      stage("채널에서 내보낸 광고 자료를 확인합니다", "채널별 샘플에서 캠페인과 노출, 클릭, 광고비, 전환, 매출 항목이 어떻게 기록되는지 확인합니다.", 101, 154, <>
+        <Panel x={32} y={40} width={139} height={143} label="채널 A 내보내기" />
+        <Row x={43} y={81} width={117}>Impressions</Row>
+        <Row x={43} y={111} width={117}>Clicks</Row>
+        <Socket x={101} y={154} />
+        <Panel x={188} y={40} width={139} height={143} label="채널 B 내보내기" />
+        <Row x={199} y={81} width={117}>노출수</Row>
+        <Row x={199} y={111} width={117}>클릭수</Row>
+        <Row x={199} y={141} width={117}>캠페인명</Row>
+      </>),
+      stage("채널마다 다른 열 이름을 맞춥니다", "같은 뜻의 열을 공통 항목으로 바꾸고 채널과 캠페인 이름을 정리해, 서로 다른 채널의 기록을 같은 표에 모을 수 있게 합니다.", 257, 154, <>
+        <Panel x={30} y={43} width={123} height={129} label="내보낸 열" />
+        <Row x={41} y={84} width={101}>Impressions</Row>
+        <Row x={41} y={115} width={101}>Cost</Row>
+        <Arrow x={158} y={126} width={32} />
+        <Panel x={195} y={35} width={132} height={151} label="공통 항목" />
+        <Row x={206} y={76} width={110}>노출수</Row>
+        <Row x={206} y={106} width={110}>광고비</Row>
+        <Socket x={257} y={154} />
+      </>),
+      stage("CTR, CPA, ROAS를 계산합니다", "노출 중 클릭이 일어난 비율(CTR)을 백분율로 표시합니다. 광고비를 전환 건수로 나눠 전환당 비용(CPA)을, 광고 매출을 광고비로 나눠 광고비 대비 매출(ROAS)을 구합니다.", 256, 57, <>
+        <Panel x={49} y={40} width={261} height={144} label="광고 지표 계산" />
+        <Socket x={256} y={57} />
+        <Row x={63} y={81} width={233}>CTR = 클릭 ÷ 노출 × 100</Row>
+        <Row x={63} y={112} width={233}>CPA = 광고비 ÷ 전환</Row>
+        <Row x={63} y={143} width={233}>ROAS = 광고 매출 ÷ 광고비</Row>
+      </>),
+      stage("누락된 값과 계산할 수 없는 지표를 검토합니다", "빈 값과 0을 구분합니다. 계산에 필요한 값이 비어 있거나 분모가 0이면 해당 지표를 표시하지 않고 원본 자료에서 확인할 항목을 알려줍니다.", 261, 58, <>
+        <Panel x={47} y={41} width={265} height={143} label="데이터 품질 점검" />
+        <Socket x={261} y={58} />
+        <Checks x={61} y={82} width={237} items={["누락 항목 찾기", "분모가 0인 지표 확인", "원본 자료 검토"]} />
+      </>),
+      stage("캠페인 결과를 같은 기준으로 비교합니다", "분석할 지표를 선택해 캠페인별 성과를 비교하고, 검토가 필요한 행을 따로 확인합니다.", 254, 157, <>
+        <Panel x={40} y={37} width={279} height={146} label="캠페인 성과 비교" />
+        <Row x={54} y={81} width={251}>캠페인 A</Row>
+        <Row x={54} y={111} width={251}>캠페인 B</Row>
+        <path d="M162 94h122m-122 30h122" stroke={colors.line} strokeWidth="5" strokeLinecap="round" />
+        <path d="M162 94h100m-100 30h64" stroke={colors.accent} strokeWidth="5" strokeLinecap="round" />
+        <Label x={64} y={161}>같은 지표로 비교</Label>
+        <Socket x={254} y={157} />
+      </>),
+    ],
+  }],
 ]);
 
 export function getPortfolioFlow(slug: string): PortfolioFlow | undefined {

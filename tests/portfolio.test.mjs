@@ -3,7 +3,10 @@ import test from "node:test";
 import { getFeaturedPortfolioItems, getPortfolioItem, PORTFOLIO_ITEMS } from "../build/unit-tests/portfolio.js";
 
 test("모든 사례를 고유 ID로 조회하고 상세 콘텐츠를 제공한다", () => {
-  assert.equal(new Set(PORTFOLIO_ITEMS.map(({ id }) => id)).size, 6);
+  assert.equal(PORTFOLIO_ITEMS.length, 8);
+  assert.equal(new Set(PORTFOLIO_ITEMS.map(({ id }) => id)).size, PORTFOLIO_ITEMS.length);
+  assert.equal(getPortfolioItem("erp-inventory")?.category, "ERP");
+  assert.equal(getPortfolioItem("ad-data-research")?.category, "데이터 분석");
   for (const item of PORTFOLIO_ITEMS) {
     assert.equal(getPortfolioItem(item.id), item);
     assert.ok(item.detail?.journey.length, item.id);

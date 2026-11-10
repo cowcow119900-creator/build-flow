@@ -10,19 +10,17 @@ export default function FAQSection() {
   const id = useId();
 
   return (
-    <section className="pt-16 pb-24 bg-white" id="faq">
-      <div className="section-container">
+    <section className="home-section bg-white" id="faq">
+      <div className="section-container home-container">
         <div className="max-w-3xl mx-auto">
-          <div className="text-center mb-12">
-            <span className="inline-block bg-blue-50 text-blue-600 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-              자주 묻는 질문
-            </span>
+          <div className="mb-6 text-center md:mb-8">
+            <span className="flow-label mb-3">자주 묻는 질문</span>
             <h2 className="text-3xl md:text-4xl font-black text-gray-900">
-              상담 전에 궁금하셨나요?
+              제작 전에 알아둘 점
             </h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {FAQS.map((faq, i) => {
               const isOpen = open === i;
               const questionId = `${id}-question-${i}`;
@@ -41,7 +39,7 @@ export default function FAQSection() {
                       type="button"
                       aria-controls={answerId}
                       aria-expanded={isOpen}
-                      className="w-full flex items-start justify-between gap-4 p-6 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600"
+                      className="flex min-h-12 w-full items-start justify-between gap-3 px-4 py-3.5 text-left focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-blue-600 sm:px-5 sm:py-4"
                       onClick={() => setOpen((current) => current === i ? null : i)}
                     >
                       <span className="flex items-start gap-3">
@@ -73,7 +71,7 @@ export default function FAQSection() {
                     }`}
                   >
                     <div className="min-h-0 overflow-hidden">
-                      <div className="flex gap-3 px-6 pb-6">
+                      <div className="flex gap-3 px-4 pb-4 sm:px-5">
                         <span aria-hidden="true" className="w-6 h-6 bg-gray-100 text-gray-500 text-xs font-black rounded-lg flex items-center justify-center flex-shrink-0 mt-0.5">
                           A
                         </span>
@@ -86,12 +84,14 @@ export default function FAQSection() {
             })}
           </div>
 
-          <div className="mt-10 bg-gradient-to-br from-blue-600 to-blue-800 rounded-2xl p-8 text-center text-white">
-            <h3 className="font-black text-xl mb-2">더 궁금한 점이 있으신가요?</h3>
-            <p className="text-blue-200 mb-6">무료 상담을 통해 프로젝트에 맞는 답변을 드립니다.</p>
+          <div className="mt-6 flex flex-col items-start gap-3 border-t border-gray-200 pt-5 sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <h3 className="font-bold text-gray-900">더 궁금한 점이 있으신가요?</h3>
+              <p className="mt-1 text-sm text-gray-600">무료 상담을 통해 프로젝트에 맞는 답변을 드립니다.</p>
+            </div>
             <Link
               href="/contact"
-              className="btn-outline-white motion-safe:hover:scale-[1.03] motion-safe:active:scale-[0.97]"
+              className="btn-secondary min-h-11 px-4 py-2.5 text-sm"
             >
               무료 상담 신청하기
             </Link>

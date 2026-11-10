@@ -21,7 +21,7 @@ function PortfolioCard({ item }: { item: PortfolioCardData }) {
       transition={{ type: "spring", stiffness: 350, damping: 28 }}
     >
       {/* Thumbnail with hover overlay */}
-      <div className={`h-44 bg-gradient-to-br ${item.colorClass} relative overflow-hidden flex items-end p-6`}>
+      <div className={`relative flex h-36 items-end overflow-hidden bg-gradient-to-br p-4 sm:h-44 sm:p-5 ${item.colorClass}`}>
         {/* Fake browser mockup auto-scroll on hover */}
         <motion.div
           className="absolute inset-2 bg-white/10 rounded-xl overflow-hidden border border-white/20"
@@ -53,7 +53,7 @@ function PortfolioCard({ item }: { item: PortfolioCardData }) {
           >
             {item.category}
           </motion.span>
-          <h3 className="text-white font-black text-xl mt-2">{item.title}</h3>
+          <h3 className="mt-2 text-lg font-black text-white sm:text-xl">{item.title}</h3>
         </div>
 
         {/* Hover overlay: tags */}
@@ -91,34 +91,34 @@ function PortfolioCard({ item }: { item: PortfolioCardData }) {
       </div>
 
       {/* Content */}
-      <div className="p-6">
-        <div className="flex flex-wrap gap-3 mb-4 text-xs text-gray-500">
+      <div className="p-4 sm:p-5">
+        <div className="mb-3 flex flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500">
           <span className="flex items-center gap-1"><Tag size={11} className="text-gray-400" /> {item.industry}</span>
           <span className="flex items-center gap-1"><Clock size={11} className="text-gray-400" /> {item.period}</span>
           <span className="flex items-center gap-1"><Layers size={11} className="text-gray-400" /> {item.stack.join(", ")}</span>
         </div>
 
-        <div className="bg-orange-50 rounded-xl p-3 mb-4">
+        <div className="mb-2 rounded-xl bg-orange-50 p-3">
           <p className="text-xs font-semibold text-orange-700 mb-1">시나리오의 과제</p>
           <p className="text-sm text-orange-800">{item.problem}</p>
         </div>
 
-        <div className="bg-green-50 rounded-xl p-3 mb-5">
+        <div className="mb-3 rounded-xl bg-green-50 p-3">
           <p className="text-xs font-semibold text-green-700 mb-1">예시 성과</p>
           <p className="text-sm text-green-800 font-semibold">{item.result}</p>
         </div>
 
         <div className="flex gap-2">
           <Link
-            href={item.hasDetails ? `/portfolio/${item.id}` : `/portfolio#${item.id}`}
-            className="flex-1 text-center text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl py-2.5 hover:border-blue-500 hover:text-blue-600 transition-colors"
-            onClick={item.hasDetails ? () => trackEvent("portfolio_detail_view", { project: item.id }) : undefined}
+            href={`/portfolio/${item.id}`}
+            className="flex min-h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 px-2 py-2.5 text-center text-sm font-semibold text-gray-600 transition-colors hover:border-blue-500 hover:text-blue-600"
+            onClick={() => trackEvent("portfolio_detail_view", { project: item.id })}
           >
-            {item.hasDetails ? "상세 보기" : "구축 예시 보기"}
+            상세 보기
           </Link>
           <Link
             href={`/contact?ref=${item.id}`}
-            className="flex-1 text-center text-sm font-semibold text-white bg-blue-600 rounded-xl py-2.5 hover:bg-blue-700 transition-colors"
+            className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-blue-600 px-2 py-2.5 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-700"
             onClick={() => trackEvent("cta_click", { location: "portfolio_card", project: item.id })}
           >
             유사 프로젝트 상담
@@ -131,24 +131,22 @@ function PortfolioCard({ item }: { item: PortfolioCardData }) {
 
 export default function PortfolioSection({ items }: { items: readonly PortfolioCardData[] }) {
   return (
-    <section className="pt-16 pb-24 bg-gray-50" id="portfolio">
-      <div className="section-container">
-        <AnimatedSection className="text-center mb-14">
-          <span className="inline-block bg-blue-50 text-blue-600 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-            포트폴리오
-          </span>
-          <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
+    <section className="home-section bg-gray-50" id="portfolio">
+      <div className="section-container home-container">
+        <AnimatedSection className="mb-6 text-center md:mb-8">
+          <span className="flow-label mb-3">포트폴리오</span>
+          <h2 className="mb-3 text-3xl font-black text-gray-900 md:text-4xl">
             웹 솔루션 구축 예시
           </h2>
-          <p className="text-gray-500 text-lg">
+          <p className="text-base leading-relaxed text-gray-600">
             가상의 사업 과제에 맞춰 어떤 기능을 설계할 수 있는지 소개합니다.
           </p>
-          <p className="text-gray-400 text-sm mt-2">
+          <p className="mt-1 text-sm text-gray-500">
             기간과 성과 수치는 가상 시나리오의 예시입니다.
           </p>
         </AnimatedSection>
 
-        <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6" stagger={0.1}>
+        <StaggerContainer className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-5" stagger={0.1}>
           {items.map((item) => (
             <StaggerItem key={item.id}>
               <PortfolioCard item={item} />
@@ -156,7 +154,7 @@ export default function PortfolioSection({ items }: { items: readonly PortfolioC
           ))}
         </StaggerContainer>
 
-        <AnimatedSection className="mt-10 text-center" delay={0.2}>
+        <AnimatedSection className="mt-6 text-center" delay={0.2}>
           <Link href="/portfolio" className="btn-secondary">
             전체 포트폴리오 보기 <ArrowRight size={18} />
           </Link>

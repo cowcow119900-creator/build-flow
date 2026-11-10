@@ -135,23 +135,21 @@ export default function ProcessTimeline() {
   const progress = ((activeStep + 1) / STEPS.length) * 100;
 
   return (
-    <section ref={sectionRef} className="pt-16 pb-24 bg-white" id="process">
-      <div className="section-container">
+    <section ref={sectionRef} className="home-section bg-white" id="process">
+      <div className="section-container home-container">
         {/* Header */}
-        <div className="text-center mb-14">
-          <span className="inline-block bg-blue-50 text-blue-600 text-sm font-semibold px-4 py-1.5 rounded-full mb-4">
-            제작 프로세스
-          </span>
-          <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-            투명하고 예측 가능한 진행 과정
+        <div className="mb-6 text-center md:mb-8">
+          <span className="flow-label mb-3">제작 프로세스</span>
+          <h2 className="mb-3 text-3xl font-black text-gray-900 md:text-4xl">
+            기획부터 출시 후 운영까지
           </h2>
-          <p className="text-gray-500 text-lg max-w-sm mx-auto">
-            각 단계에서 무엇을 하는지, 얼마나 걸리는지 미리 알 수 있습니다.
+          <p className="mx-auto max-w-lg text-base leading-relaxed text-gray-600">
+            단계마다 진행할 일과 소요 기간, 산출물을 확인할 수 있습니다.
           </p>
         </div>
 
         {/* Desktop: Two-column layout */}
-        <div className="hidden md:grid md:grid-cols-5 gap-8 min-h-[560px]">
+        <div className="hidden items-start gap-6 md:grid md:grid-cols-5 lg:gap-8">
           {/* Left: Step list (sticky) */}
           <div className="col-span-2 sticky top-28 h-fit">
             {/* Progress line */}
@@ -164,7 +162,7 @@ export default function ProcessTimeline() {
                 </div>
                 <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
-                    className="h-full bg-blue-600 rounded-full"
+                    className="h-full rounded-full bg-linear-to-r from-cyan-400 to-blue-600"
                     initial={false}
                     animate={{ width: `${progress}%` }}
                     transition={{ duration: reduced ? 0 : 0.5, ease: [0.25, 0.1, 0.25, 1] }}
@@ -177,7 +175,7 @@ export default function ProcessTimeline() {
               {/* Vertical line */}
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-100" />
               <motion.div
-                className="absolute left-4 top-0 w-0.5 bg-blue-500 origin-top"
+                className="absolute left-4 top-0 w-0.5 origin-top bg-linear-to-b from-cyan-400 to-blue-600"
                 initial={false}
                 animate={{ height: `${progress}%` }}
                 transition={{ duration: reduced ? 0 : 0.5, ease: [0.25, 0.1, 0.25, 1] }}
@@ -194,15 +192,15 @@ export default function ProcessTimeline() {
                       type="button"
                       aria-current={isActive ? "step" : undefined}
                       aria-controls="process-step-detail"
-                      className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
-                        isActive ? "bg-blue-50" : "hover:bg-gray-50"
+                      className={`relative w-full flex items-center gap-3 px-3 py-2 rounded-xl transition-all text-left ${
+                        isActive ? "bg-cyan-50" : "hover:bg-gray-50"
                       }`}
                       onClick={() => setActiveStep(i)}
                     >
                       {/* Dot */}
                       <motion.div
                         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 transition-colors ${
-                          isActive ? "bg-blue-600" : isDone ? "bg-blue-200" : "bg-gray-100"
+                          isActive ? "bg-(--flow-ink) ring-1 ring-cyan-400" : isDone ? "bg-blue-200" : "bg-gray-100"
                         }`}
                         initial={false}
                         animate={{ scale: isActive ? 1.1 : 1 }}
@@ -240,17 +238,17 @@ export default function ProcessTimeline() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={reduced ? undefined : { opacity: 0, y: -16 }}
                 transition={{ duration: reduced ? 0 : 0.35, ease: [0.25, 0.1, 0.25, 1] }}
-                className="bg-white rounded-3xl border-2 border-gray-100 p-8 h-full"
+                className="rounded-3xl border-2 border-gray-100 bg-white p-6 lg:p-8"
               >
                 {/* Step header */}
-                <div className="flex items-start gap-5 mb-6">
-                  <div className="w-14 h-14 bg-blue-600 rounded-2xl flex items-center justify-center flex-shrink-0">
+                <div className="mb-5 flex items-start gap-4">
+                  <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-(--flow-ink)">
                     <ActiveIcon size={26} className="text-white" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-xs font-black text-blue-600 bg-blue-50 px-2.5 py-1 rounded-full">
-                        STEP {active.step}
+                      <span className="inline-flex items-center gap-1.5 text-xs font-bold text-blue-700 before:size-1.5 before:rounded-full before:bg-cyan-500">
+                        {active.step}단계
                       </span>
                       <span className="text-xs text-gray-400">{active.duration}</span>
                     </div>
@@ -260,7 +258,7 @@ export default function ProcessTimeline() {
                 </div>
 
                 {/* Detail text */}
-                <div className="bg-gray-50 rounded-2xl p-5 mb-5">
+                <div className="mb-4 rounded-2xl bg-gray-50 p-4">
                   <p className="text-gray-700 leading-relaxed">{active.detail}</p>
                 </div>
 
@@ -322,11 +320,11 @@ export default function ProcessTimeline() {
         </div>
 
         {/* Mobile: Simple vertical timeline */}
-        <div className="md:hidden space-y-4">
+        <div className="md:hidden">
           {STEPS.map((step, i) => {
             const StepIcon = step.icon;
             return (
-              <div key={step.step} className="relative flex gap-4">
+              <div key={step.step} className="relative flex gap-3 pb-3">
                 {/* Line */}
                 {i < STEPS.length - 1 && (
                   <div className="absolute left-5 top-10 bottom-0 w-0.5 bg-gray-100" />
@@ -336,7 +334,7 @@ export default function ProcessTimeline() {
                   <StepIcon size={18} className="text-blue-600" />
                 </div>
                 {/* Content */}
-                <div className="flex-1 pb-4">
+                <div className="flex-1">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="font-bold text-gray-900">{step.title}</span>
                     <span className="text-xs text-gray-400">{step.duration}</span>
@@ -346,7 +344,7 @@ export default function ProcessTimeline() {
               </div>
             );
           })}
-          <div className="pt-4">
+          <div className="pt-3">
             <Link href="/contact" className="btn-primary w-full justify-center">
               지금 무료 상담 시작하기
             </Link>

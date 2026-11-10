@@ -75,17 +75,15 @@ export default function PortfolioPage() {
                 </div>
 
                 <div className="flex gap-2 mt-auto">
-                  {item.detail && (
-                    <Link
-                      href={`/portfolio/${item.id}`}
-                      className="flex-1 text-center text-xs font-semibold text-gray-600 border border-gray-200 rounded-xl py-2.5 hover:border-blue-500 hover:text-blue-600 transition-colors"
-                    >
-                      상세 보기
-                    </Link>
-                  )}
+                  <Link
+                    href={`/portfolio/${item.id}`}
+                    className="flex min-h-11 flex-1 items-center justify-center rounded-xl border border-gray-200 px-2 text-center text-sm font-semibold text-gray-600 transition-colors hover:border-blue-500 hover:text-blue-600"
+                  >
+                    상세 보기
+                  </Link>
                   <Link
                     href={`/contact?ref=${item.id}`}
-                    className="flex-1 text-center text-xs font-semibold text-white bg-blue-600 rounded-xl py-2.5 hover:bg-blue-700 transition-colors"
+                    className="flex min-h-11 flex-1 items-center justify-center rounded-xl bg-blue-600 px-2 text-center text-sm font-semibold text-white transition-colors hover:bg-blue-700"
                   >
                     유사 상담
                   </Link>

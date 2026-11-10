@@ -105,8 +105,8 @@ export default function Header() {
           }}
           transition={{ duration: 0.25 }}
         >
-          <div className="section-container">
-            <div className="flex items-center justify-between h-16 md:h-18">
+          <div className={pathname === "/" ? "section-container home-container" : "section-container"}>
+            <div className={`flex items-center justify-between h-16 md:h-18 ${pathname === "/" && !scrolled ? "border-b border-blue-200/20" : ""}`}>
               {/* Logo */}
               <Link ref={logoRef} href="/" className="flex items-center gap-2 group">
                 <motion.div

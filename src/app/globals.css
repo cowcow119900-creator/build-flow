@@ -8,6 +8,8 @@
   --blue: #1d5be7;
   --blue-light: #4a7ff5;
   --blue-pale: #e8f0fe;
+  --flow-ink: #081320;
+  --flow-cyan: #9bedff;
 }
 
 @theme inline {
@@ -71,7 +73,7 @@ body {
 
 @layer components {
   .section-container {
-    max-width: 1200px;
+    max-width: var(--section-width, 1200px);
     margin: 0 auto;
     padding: 0 1.5rem;
   }
@@ -79,6 +81,78 @@ body {
   @media (min-width: 768px) {
     .section-container { padding: 0 2rem; }
   }
+
+  .home-container {
+    --section-width: 1320px;
+    padding-inline: clamp(1.125rem, 3vw, 2rem);
+  }
+
+  .home-section {
+    padding-block: clamp(2.75rem, 5vw, 4rem);
+    scroll-margin-top: 4.5rem;
+  }
+
+  .flow-hero {
+    background: radial-gradient(ellipse at 72% 45%, #112d50 0%, transparent 56%), var(--flow-ink);
+  }
+
+  .flow-label {
+    --flow-label-color: #1d5be7;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.625rem;
+    color: var(--flow-label-color);
+    font-size: 0.8125rem;
+    font-weight: 750;
+  }
+
+  .flow-label::before {
+    content: "";
+    width: 1.625rem;
+    height: 0.375rem;
+    background:
+      radial-gradient(circle at 100% 50%, currentColor 0 0.17rem, transparent 0.18rem),
+      linear-gradient(currentColor, currentColor) left center / 100% 1px no-repeat;
+  }
+
+  .flow-hero .flow-label { --flow-label-color: var(--flow-cyan); }
+
+  .flow-method {
+    display: flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: clamp(0.625rem, 2.1vw, 1.75rem);
+    border-radius: 0.375rem;
+    color: #dceaff;
+    font-size: clamp(0.875rem, 1.6vw, 1.25rem);
+    font-weight: 750;
+    transition: color 150ms;
+  }
+
+  .flow-method:hover { color: var(--flow-cyan); }
+  .flow-method:focus-visible { outline: 2px solid var(--flow-cyan); outline-offset: 4px; }
+
+  .flow-method-rule {
+    position: relative;
+    height: 1px;
+    flex: 1;
+    background: linear-gradient(90deg, #397ec0, #6cdaf6);
+  }
+
+  .flow-method-rule::before,
+  .flow-method-rule::after {
+    position: absolute;
+    top: 50%;
+    width: 0.325rem;
+    height: 0.325rem;
+    transform: translateY(-50%);
+    border-radius: 50%;
+    background: #82dff8;
+    content: "";
+  }
+
+  .flow-method-rule::before { inset-inline-start: 0; }
+  .flow-method-rule::after { inset-inline-end: 0; }
 
   .btn-primary {
     display: inline-flex;

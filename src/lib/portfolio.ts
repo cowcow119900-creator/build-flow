@@ -1,4 +1,4 @@
-type PortfolioSummary = {
+export type PortfolioCardData = {
   id: string;
   category: string;
   industry: string;
@@ -20,9 +20,7 @@ type PortfolioDetail = {
   effects: string[];
 };
 
-type PortfolioItem = PortfolioSummary & { detail?: PortfolioDetail };
-
-export type PortfolioCardData = PortfolioSummary & { hasDetails: boolean };
+type PortfolioItem = PortfolioCardData & { detail?: PortfolioDetail };
 
 export const PORTFOLIO_ITEMS: readonly PortfolioItem[] = [
   {
@@ -148,8 +146,9 @@ export function getPortfolioItem(slug: string): PortfolioItem | undefined {
 }
 
 export function getFeaturedPortfolioItems(): PortfolioCardData[] {
-  return PORTFOLIO_ITEMS.slice(0, 4).map(({ detail, ...summary }) => ({
-    ...summary,
-    hasDetails: detail !== undefined,
-  }));
+  return PORTFOLIO_ITEMS.slice(0, 4).map((item) => {
+    const summary = { ...item };
+    delete summary.detail;
+    return summary;
+  });
 }

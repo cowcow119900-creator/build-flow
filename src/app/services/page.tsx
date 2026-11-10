@@ -35,7 +35,7 @@ export default function ServicesPage() {
           {SERVICES.map((svc) => {
             const Icon = ICON_MAP[svc.icon] || Building2;
             return (
-              <div key={svc.id} className="bg-white rounded-2xl p-7 border-2 border-gray-100 card-hover">
+              <div id={svc.id} key={svc.id} className="scroll-mt-24 bg-white rounded-2xl p-7 border-2 border-gray-100 card-hover">
                 <div className="flex items-start gap-4 mb-5">
                   <div className="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center flex-shrink-0">
                     <Icon size={22} className="text-blue-600" />
@@ -67,7 +67,7 @@ export default function ServicesPage() {
                       견적 계산
                     </Link>
                     <Link
-                      href="/contact"
+                      href={`/contact?purpose=${svc.id}`}
                       className="text-xs font-semibold text-white bg-blue-600 px-3 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-1"
                     >
                       상담 신청 <ArrowRight size={12} />

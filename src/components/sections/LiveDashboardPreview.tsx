@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { TrendingUp, Bell, CheckCircle, Users, BarChart2, Globe } from "lucide-react";
 import { useReducedMotion } from "@/hooks/useReducedMotion";

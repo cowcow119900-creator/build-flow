@@ -5,6 +5,7 @@ import ProcessSection from "@/components/sections/ProcessSection";
 import PortfolioSection from "@/components/sections/PortfolioSection";
 import FAQSection from "@/components/sections/FAQSection";
 import CTABanner from "@/components/sections/CTABanner";
+import { getFeaturedPortfolioItems } from "@/lib/portfolio";
 
 export default function HomePage() {
   return (
@@ -13,7 +14,7 @@ export default function HomePage() {
       <ServicesSection />
       <WhyUsSection />
       <ProcessSection />
-      <PortfolioSection />
+      <PortfolioSection items={getFeaturedPortfolioItems()} />
       <FAQSection />
       <CTABanner />
     </>

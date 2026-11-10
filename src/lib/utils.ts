@@ -1,13 +1,12 @@
-import { type ClassValue, clsx } from "clsx";
-import { twMerge } from "tailwind-merge";
+type EventParams = Record<string, string | number | boolean>;
+type Gtag = (command: "event", eventName: string, params?: EventParams) => void;
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
-
-export function trackEvent(eventName: string, params?: Record<string, string | number | boolean>) {
-  if (typeof window !== "undefined" && (window as unknown as { gtag?: Function }).gtag) {
-    (window as unknown as { gtag: Function }).gtag("event", eventName, params);
+export function trackEvent(eventName: string, params?: EventParams) {
+  if (typeof window !== "undefined") {
+    const analytics = window as Window & { gtag?: Gtag };
+    if (typeof analytics.gtag === "function") {
+      analytics.gtag("event", eventName, params);
+    }
   }
   if (process.env.NODE_ENV === "development") {
     console.log("[Track]", eventName, params);

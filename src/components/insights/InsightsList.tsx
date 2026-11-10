@@ -12,34 +12,37 @@ import { trackEvent } from "@/lib/utils";
 const HASH_PREFIX = "#insight-";
 
 export default function InsightsList({ insights }: { insights: Insight[] }) {
-  const [open, setOpen] = useState(false);
   const [active, setActive] = useState<Insight | null>(null);
   const [progress, setProgress] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const returnFocusSlug = useRef<string | null>(null);
   const reduced = useReducedMotion();
 
   const openArticle = (article: Insight) => {
+    returnFocusSlug.current = article.slug;
     setActive(article);
     setProgress(0);
-    setOpen(true);
-    history.replaceState(null, "", `${HASH_PREFIX}${article.slug}`);
+    history.replaceState(history.state, "", `${HASH_PREFIX}${article.slug}`);
     trackEvent("insight_open", { slug: article.slug });
   };
 
   const close = () => {
-    setOpen(false);
-    history.replaceState(null, "", location.pathname + location.search);
+    setActive(null);
+    if (location.hash.startsWith(HASH_PREFIX)) {
+      history.replaceState(history.state, "", location.pathname + location.search);
+    }
   };
 
   // Open the article linked by URL hash (e.g. /insights#insight-saas-mvp-strategy)
   useEffect(() => {
     const syncFromHash = () => {
       const slug = location.hash.startsWith(HASH_PREFIX) ? location.hash.slice(HASH_PREFIX.length) : null;
-      const found = slug && insights.find((a) => a.slug === slug);
+      const found = insights.find((article) => article.slug === slug);
+      setActive(found ?? null);
       if (found) {
-        setActive(found);
+        returnFocusSlug.current ??= found.slug;
         setProgress(0);
-        setOpen(true);
+        if (scrollRef.current) scrollRef.current.scrollTop = 0;
       }
     };
     const frame = requestAnimationFrame(syncFromHash);
@@ -49,6 +52,13 @@ export default function InsightsList({ insights }: { insights: Insight[] }) {
       window.removeEventListener("hashchange", syncFromHash);
     };
   }, [insights]);
+
+  const restoreArticleFocus = (event: Event) => {
+    event.preventDefault();
+    const slug = returnFocusSlug.current;
+    returnFocusSlug.current = null;
+    if (slug) document.getElementById(`insight-card-${slug}`)?.focus({ preventScroll: true });
+  };
 
   const handleScroll = () => {
     const el = scrollRef.current;
@@ -63,7 +73,9 @@ export default function InsightsList({ insights }: { insights: Insight[] }) {
         {insights.map((article) => (
           <button
             key={article.slug}
+            id={`insight-card-${article.slug}`}
             type="button"
+            aria-haspopup="dialog"
             onClick={() => openArticle(article)}
             className="group text-left bg-white rounded-2xl p-6 border border-gray-100 shadow-sm card-hover focus:outline-none focus-visible:ring-2 focus-visible:ring-blue-500"
           >
@@ -91,26 +103,26 @@ export default function InsightsList({ insights }: { insights: Insight[] }) {
         ))}
       </div>
 
-      <Dialog.Root open={open} onOpenChange={(o) => !o && close()}>
+      <Dialog.Root open={active !== null} onOpenChange={(open) => !open && close()}>
         <AnimatePresence>
-          {open && active && (
+          {active && (
             <Dialog.Portal forceMount>
               <Dialog.Overlay asChild forceMount>
                 <motion.div
                   className="fixed inset-0 z-[100] bg-gray-950/60 backdrop-blur-sm"
-                  initial={{ opacity: 0 }}
+                  initial={reduced ? false : { opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
+                  transition={{ duration: reduced ? 0 : 0.2 }}
                 />
               </Dialog.Overlay>
-              <Dialog.Content asChild forceMount aria-describedby={undefined}>
+              <Dialog.Content asChild forceMount aria-describedby={undefined} onCloseAutoFocus={restoreArticleFocus}>
                 <motion.div
                   className="fixed z-[101] inset-x-0 bottom-0 top-6 md:inset-0 md:m-auto md:w-[min(720px,calc(100vw-48px))] md:h-[min(86vh,900px)] flex flex-col bg-white rounded-t-3xl md:rounded-3xl shadow-2xl overflow-hidden focus:outline-none"
-                  initial={reduced ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.98 }}
+                  initial={reduced ? false : { opacity: 0, y: 40, scale: 0.98 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={reduced ? { opacity: 0 } : { opacity: 0, y: 40, scale: 0.98 }}
-                  transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                  transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 320, damping: 32 }}
                 >
                   {/* Header */}
                   <div className="relative shrink-0 flex items-center justify-between gap-3 px-5 md:px-8 py-4 border-b border-gray-100">

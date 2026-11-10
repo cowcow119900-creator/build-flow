@@ -75,12 +75,8 @@ export default function Footer() {
           <p className="mt-1">주소 {BUSINESS_INFO.address}</p>
         </div>
 
-        <div className="mt-6 pt-6 border-t border-gray-800 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
+        <div className="mt-6 pt-6 border-t border-gray-800 text-xs text-gray-600">
           <p>© {new Date().getFullYear()} {COMPANY_NAME}. All rights reserved.</p>
-          <div className="flex gap-4">
-            <Link href="/privacy" className="hover:text-gray-400">개인정보처리방침</Link>
-            <Link href="/terms" className="hover:text-gray-400">이용약관</Link>
-          </div>
         </div>
       </div>
     </footer>

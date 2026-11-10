@@ -4,63 +4,17 @@ import { useState } from "react";
 import Link from "next/link";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Clock, Tag, Layers } from "lucide-react";
+import type { PortfolioCardData } from "@/lib/portfolio";
 import { trackEvent } from "@/lib/utils";
 import AnimatedSection from "@/components/motion/AnimatedSection";
 import { StaggerContainer, StaggerItem } from "@/components/motion/StaggerContainer";
 
-const PORTFOLIO_ITEMS = [
-  {
-    id: "medical-reservation",
-    category: "예약 시스템", industry: "의료",
-    title: "H의원 온라인 예약 시스템",
-    problem: "전화 예약으로 인한 업무 과부하와 노쇼 발생",
-    features: ["실시간 예약", "SMS 리마인더", "의사별 스케줄 관리", "관리자 대시보드"],
-    period: "6주", stack: ["Next.js", "Supabase", "Vercel"],
-    result: "예약 전화 70% 감소, 노쇼율 35% 개선",
-    colorClass: "from-blue-500 to-blue-700",
-    note: "구축 예시 — 가상 시나리오",
-  },
-  {
-    id: "brand-landing",
-    category: "랜딩페이지", industry: "뷰티",
-    title: "I브랜드 신제품 출시 랜딩",
-    problem: "광고 클릭 후 전환율이 1% 미만으로 ROAS 저조",
-    features: ["단계형 스크롤 스토리", "리뷰 소셜 증거", "즉시 구매 CTA", "픽셀 추적"],
-    period: "2주", stack: ["Next.js", "GA4", "Meta Pixel"],
-    result: "광고 전환율 1% → 4.8% 개선",
-    colorClass: "from-rose-400 to-pink-600",
-    note: "구축 예시 — 가상 시나리오",
-  },
-  {
-    id: "b2b-portal",
-    category: "기업 홈페이지", industry: "제조업",
-    title: "J제조사 B2B 파트너 포털",
-    problem: "영업 담당자 없이 파트너사가 견적·발주 처리 불가",
-    features: ["파트너 로그인", "견적 자동 생성", "발주 관리", "재고 조회"],
-    period: "10주", stack: ["Next.js", "Supabase", "PostgreSQL"],
-    result: "영업 처리 시간 60% 단축",
-    colorClass: "from-slate-600 to-slate-800",
-    note: "구축 예시 — 가상 시나리오",
-  },
-  {
-    id: "fitness-saas",
-    category: "SaaS 개발", industry: "헬스케어",
-    title: "K피트니스 센터 회원 관리 SaaS",
-    problem: "엑셀 회원 관리, PT 스케줄 충돌 빈번",
-    features: ["회원 등록/관리", "PT 예약", "결제 연동", "출석 관리"],
-    period: "14주", stack: ["Next.js", "Supabase", "Stripe"],
-    result: "관리 시간 80% 절감, 센터 3곳 도입",
-    colorClass: "from-emerald-500 to-teal-700",
-    note: "구축 예시 — 가상 시나리오",
-  },
-];
-
-function PortfolioCard({ item }: { item: typeof PORTFOLIO_ITEMS[0] }) {
+function PortfolioCard({ item }: { item: PortfolioCardData }) {
   const [hovered, setHovered] = useState(false);
 
   return (
     <motion.div
-      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100 cursor-pointer"
+      className="bg-white rounded-2xl overflow-hidden shadow-sm border border-gray-100"
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
       whileHover={{ y: -6, boxShadow: "0 20px 60px rgba(0,0,0,0.12)" }}
@@ -132,7 +86,7 @@ function PortfolioCard({ item }: { item: typeof PORTFOLIO_ITEMS[0] }) {
         </AnimatePresence>
 
         <div className="absolute top-3 right-3 bg-white/10 text-white/60 text-[10px] px-2 py-0.5 rounded-full border border-white/20">
-          {item.note}
+          가상 시나리오 기반 데모
         </div>
       </div>
 
@@ -145,22 +99,22 @@ function PortfolioCard({ item }: { item: typeof PORTFOLIO_ITEMS[0] }) {
         </div>
 
         <div className="bg-orange-50 rounded-xl p-3 mb-4">
-          <p className="text-xs font-semibold text-orange-700 mb-1">해결한 문제</p>
+          <p className="text-xs font-semibold text-orange-700 mb-1">시나리오의 과제</p>
           <p className="text-sm text-orange-800">{item.problem}</p>
         </div>
 
         <div className="bg-green-50 rounded-xl p-3 mb-5">
-          <p className="text-xs font-semibold text-green-700 mb-1">제작 결과</p>
+          <p className="text-xs font-semibold text-green-700 mb-1">예시 성과</p>
           <p className="text-sm text-green-800 font-semibold">{item.result}</p>
         </div>
 
         <div className="flex gap-2">
           <Link
-            href={`/portfolio/${item.id}`}
+            href={item.hasDetails ? `/portfolio/${item.id}` : `/portfolio#${item.id}`}
             className="flex-1 text-center text-sm font-semibold text-gray-600 border border-gray-200 rounded-xl py-2.5 hover:border-blue-500 hover:text-blue-600 transition-colors"
-            onClick={() => trackEvent("portfolio_detail_view", { project: item.id })}
+            onClick={item.hasDetails ? () => trackEvent("portfolio_detail_view", { project: item.id }) : undefined}
           >
-            상세 보기
+            {item.hasDetails ? "상세 보기" : "구축 예시 보기"}
           </Link>
           <Link
             href={`/contact?ref=${item.id}`}
@@ -175,7 +129,7 @@ function PortfolioCard({ item }: { item: typeof PORTFOLIO_ITEMS[0] }) {
   );
 }
 
-export default function PortfolioSection() {
+export default function PortfolioSection({ items }: { items: readonly PortfolioCardData[] }) {
   return (
     <section className="pt-16 pb-24 bg-gray-50" id="portfolio">
       <div className="section-container">
@@ -184,18 +138,18 @@ export default function PortfolioSection() {
             포트폴리오
           </span>
           <h2 className="text-3xl md:text-4xl font-black text-gray-900 mb-4">
-            성과 중심 제작 사례
+            웹 솔루션 구축 예시
           </h2>
           <p className="text-gray-500 text-lg">
-            화면만 예쁜 게 아니라, 실제 사업 문제를 해결한 사례입니다.
+            가상의 사업 과제에 맞춰 어떤 기능을 설계할 수 있는지 소개합니다.
           </p>
           <p className="text-gray-400 text-sm mt-2">
-            * 아래 사례는 구축 예시이며, 가상 시나리오 기반의 데모 프로젝트입니다.
+            기간과 성과 수치는 가상 시나리오의 예시입니다.
           </p>
         </AnimatedSection>
 
         <StaggerContainer className="grid grid-cols-1 md:grid-cols-2 gap-6" stagger={0.1}>
-          {PORTFOLIO_ITEMS.map((item) => (
+          {items.map((item) => (
             <StaggerItem key={item.id}>
               <PortfolioCard item={item} />
             </StaggerItem>

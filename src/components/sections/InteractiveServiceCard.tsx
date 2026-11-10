@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from "motion/react";
 import Link from "next/link";
 import {
   Building2, Rocket, ShoppingCart, Calendar, LayoutDashboard,
-  RefreshCw, Code2, Bot, ArrowRight, Calculator, CheckCircle
+  RefreshCw, Code2, Bot, Calculator
 } from "lucide-react";
 import { trackEvent } from "@/lib/utils";
 
@@ -68,7 +68,6 @@ function AdminPreview() {
 }
 
 function ShopPreview() {
-  const [cart, setCart] = useState(0);
   return (
     <div className="absolute inset-x-3 bottom-3 bg-white rounded-xl shadow-lg border border-gray-100 p-2 pointer-events-none">
       <div className="flex gap-1.5 overflow-hidden">
@@ -126,33 +125,11 @@ function ChatPreview() {
   );
 }
 
-function GenericPreview({ features }: { features: string[] }) {
-  return (
-    <div className="absolute inset-x-3 bottom-3 bg-white rounded-xl shadow-lg border border-gray-100 p-2.5 pointer-events-none">
-      <p className="text-[9px] font-bold text-gray-500 mb-1.5">주요 기능</p>
-      <div className="space-y-1">
-        {features.slice(0, 3).map((f, i) => (
-          <motion.div
-            key={f}
-            className="flex items-center gap-1.5 text-[9px] text-gray-600"
-            initial={{ opacity: 0, x: -8 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.1 }}
-          >
-            <CheckCircle size={10} className="text-green-500 flex-shrink-0" />
-            {f}
-          </motion.div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-const PREVIEW_MAP: Record<string, React.ComponentType<{ features: string[] }>> = {
-  "reservation-system": () => <CalendarPreview />,
-  "admin-system": () => <AdminPreview />,
-  "shopping-mall": () => <ShopPreview />,
-  "ai-automation": () => <ChatPreview />,
+const PREVIEW_MAP: Partial<Record<string, React.ComponentType>> = {
+  "reservation-system": CalendarPreview,
+  "admin-system": AdminPreview,
+  "shopping-mall": ShopPreview,
+  "ai-automation": ChatPreview,
 };
 
 // ─── Main Card ───────────────────────────────────────────────────
@@ -167,7 +144,7 @@ type ServiceData = {
   icon: string;
   title: string;
   desc: string;
-  features: string[];
+  features: readonly string[];
   priceFrom: number;
 };
 
@@ -252,7 +229,7 @@ export default function InteractiveServiceCard({ svc }: { svc: ServiceData }) {
           </p>
           <div className="flex gap-2">
             <Link
-              href={`/services/${svc.id}`}
+              href={`/services#${svc.id}`}
               className="flex-1 text-center text-xs font-semibold text-gray-600 border border-gray-200 rounded-lg py-2 hover:border-blue-500 hover:text-blue-600 transition-colors"
               onClick={(e) => { e.stopPropagation(); trackEvent("service_detail_view", { service: svc.id }); }}
             >
@@ -280,7 +257,7 @@ export default function InteractiveServiceCard({ svc }: { svc: ServiceData }) {
             transition={{ duration: 0.25 }}
             className="absolute inset-x-0 bottom-0"
           >
-            <Preview features={svc.features} />
+            <Preview />
           </motion.div>
         )}
       </AnimatePresence>

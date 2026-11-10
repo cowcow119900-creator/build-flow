@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import * as Dialog from "@radix-ui/react-dialog";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "motion/react";
 import { Menu, X, ArrowRight } from "lucide-react";
 import { COMPANY_NAME } from "@/lib/constants";
@@ -20,38 +21,65 @@ const NAV_LINKS = [
   { label: "문의하기", href: "/contact" },
 ];
 
+const DESKTOP_QUERY = "(min-width: 48rem)";
+
+function subscribeToDesktop(onChange: () => void) {
+  const query = window.matchMedia(DESKTOP_QUERY);
+  query.addEventListener("change", onChange);
+  return () => query.removeEventListener("change", onChange);
+}
+
+function isDesktopViewport() {
+  return window.matchMedia(DESKTOP_QUERY).matches;
+}
+
+function getServerDesktopSnapshot() {
+  return false;
+}
+
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
-  const isHome = pathname === "/";
-  const [scrolled, setScrolled] = useState(!isHome);
+  const isDesktop = useSyncExternalStore(subscribeToDesktop, isDesktopViewport, getServerDesktopSnapshot);
   const reduced = useReducedMotion();
+  const [openMenuPath, setOpenMenuPath] = useState<string | null>(null);
+  const [pastTop, setPastTop] = useState(false);
   const { scrollY } = useScroll();
-  const hoverRef = useRef<string | null>(null);
   const [hoveredLink, setHoveredLink] = useState<string | null>(null);
+  const logoRef = useRef<HTMLAnchorElement>(null);
+  const restoreMenuFocus = useRef(true);
+
+  if (openMenuPath !== null && (isDesktop || openMenuPath !== pathname)) {
+    setOpenMenuPath(null);
+  }
+  const isOpen = !isDesktop && openMenuPath === pathname;
+  const scrolled = pathname !== "/" || pastTop;
 
   useMotionValueEvent(scrollY, "change", (latest) => {
-    setScrolled(!isHome || latest > 20);
+    setPastTop(latest > 20);
   });
 
-  // Lock body scroll when mobile menu open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "";
-    }
-    return () => { document.body.style.overflow = ""; };
-  }, [isOpen]);
+  const closeForNavigation = (destination: string) => {
+    restoreMenuFocus.current = destination === pathname;
+    setOpenMenuPath(null);
+  };
 
-  // Close menu on route change; ensure white header on non-home pages after navigation
-  useEffect(() => {
-    setIsOpen(false);
-    if (pathname !== "/") setScrolled(true);
-  }, [pathname]);
+  const handleCloseAutoFocus = (event: Event) => {
+    if (!restoreMenuFocus.current) {
+      event.preventDefault();
+    } else if (isDesktopViewport()) {
+      event.preventDefault();
+      logoRef.current?.focus({ preventScroll: true });
+    }
+  };
 
   return (
-    <>
+    <Dialog.Root
+      open={isOpen}
+      onOpenChange={(open) => {
+        if (open) restoreMenuFocus.current = true;
+        setOpenMenuPath(open ? pathname : null);
+      }}
+    >
       <ScrollProgress />
 
       <motion.header
@@ -80,7 +108,7 @@ export default function Header() {
           <div className="section-container">
             <div className="flex items-center justify-between h-16 md:h-18">
               {/* Logo */}
-              <Link href="/" className="flex items-center gap-2 group">
+              <Link ref={logoRef} href="/" className="flex items-center gap-2 group">
                 <motion.div
                   className="w-9 h-9 rounded-lg overflow-hidden"
                   whileHover={{ scale: 1.08, rotate: -3 }}
@@ -98,13 +126,15 @@ export default function Header() {
               </Link>
 
               {/* Desktop Nav */}
-              <nav className="hidden md:flex items-center gap-0.5">
+              <nav aria-label="주 메뉴" className="hidden md:flex items-center gap-0.5">
                 {NAV_LINKS.map((link) => {
-                  const isActive = pathname.startsWith(link.href) && link.href !== "/";
+                  const isCurrent = pathname === link.href;
+                  const isActive = isCurrent || pathname.startsWith(`${link.href}/`);
                   return (
                     <Link
                       key={link.href}
                       href={link.href}
+                      aria-current={isCurrent ? "page" : undefined}
                       className={`relative px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
                         scrolled
                           ? isActive
@@ -153,109 +183,117 @@ export default function Header() {
               </div>
 
               {/* Mobile menu toggle */}
-              <motion.button
-                className="md:hidden p-2 rounded-lg"
-                onClick={() => setIsOpen(!isOpen)}
-                aria-label="메뉴 열기"
-                whileTap={{ scale: 0.9 }}
-              >
-                {isOpen ? (
-                  <X className="text-gray-900" size={22} />
-                ) : (
+              <Dialog.Trigger asChild>
+                <motion.button
+                  className="md:hidden p-2 rounded-lg"
+                  aria-label="메뉴 열기"
+                  whileTap={reduced ? undefined : { scale: 0.9 }}
+                >
                   <Menu className={scrolled ? "text-gray-900" : "text-white"} size={22} />
-                )}
-              </motion.button>
+                </motion.button>
+              </Dialog.Trigger>
             </div>
           </div>
         </motion.div>
       </motion.header>
 
       {/* Mobile Drawer */}
-      <AnimatePresence>
-        {isOpen && (
-          <>
-            {/* Backdrop */}
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
-              className="fixed inset-0 bg-black/40 z-40 md:hidden"
-              onClick={() => setIsOpen(false)}
-            />
-
-            {/* Drawer from bottom */}
-            <motion.div
-              initial={{ y: "100%" }}
-              animate={{ y: 0 }}
-              exit={{ y: "100%" }}
-              transition={{ type: "spring", stiffness: 300, damping: 30 }}
-              className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-white rounded-t-3xl shadow-2xl"
-            >
-              {/* Handle */}
-              <div className="flex justify-center pt-3 pb-2">
-                <div className="w-10 h-1 bg-gray-200 rounded-full" />
-              </div>
-
-              <div className="px-4 pb-10">
-                {/* Logo */}
-                <div className="flex items-center gap-2 py-4 mb-2 border-b border-gray-100">
-                  <div className="w-9 h-9 rounded-lg overflow-hidden">
-                    <Image src="/logo-mark.png" alt="" width={36} height={36} />
+      {!isDesktop && (
+        <AnimatePresence>
+          {isOpen && (
+            <Dialog.Portal forceMount>
+              <Dialog.Overlay asChild forceMount>
+                <motion.div
+                  initial={reduced ? false : { opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: reduced ? 0 : 0.2 }}
+                  className="fixed inset-0 z-[60] bg-black/40"
+                />
+              </Dialog.Overlay>
+              <Dialog.Content
+                asChild
+                forceMount
+                aria-describedby={undefined}
+                onCloseAutoFocus={handleCloseAutoFocus}
+              >
+                <motion.div
+                  initial={reduced ? false : { y: "100%" }}
+                  animate={{ y: 0 }}
+                  exit={reduced ? { opacity: 0 } : { y: "100%" }}
+                  transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 300, damping: 30 }}
+                  className="fixed bottom-0 left-0 right-0 z-[61] max-h-[calc(100dvh-1rem)] overflow-y-auto overscroll-contain rounded-t-3xl bg-white shadow-2xl"
+                >
+                  <Dialog.Title className="sr-only">사이트 메뉴</Dialog.Title>
+                  <div className="flex justify-center pt-3 pb-2">
+                    <div className="w-10 h-1 bg-gray-200 rounded-full" />
                   </div>
-                  <span className="font-black text-lg text-gray-900">{COMPANY_NAME}</span>
-                </div>
 
-                {/* Nav links with stagger */}
-                <div className="space-y-1 py-3">
-                  {NAV_LINKS.map((link, i) => (
+                  <div className="px-4 pb-10">
+                    <div className="flex items-center gap-2 py-4 mb-2 border-b border-gray-100">
+                      <div className="w-9 h-9 rounded-lg overflow-hidden">
+                        <Image src="/logo-mark.png" alt="" width={36} height={36} />
+                      </div>
+                      <span className="font-black text-lg text-gray-900">{COMPANY_NAME}</span>
+                      <Dialog.Close
+                        aria-label="메뉴 닫기"
+                        className="ml-auto p-2 rounded-lg text-gray-700 hover:bg-gray-100"
+                      >
+                        <X size={22} />
+                      </Dialog.Close>
+                    </div>
+
+                    <nav aria-label="주 메뉴" className="space-y-1 py-3">
+                      {NAV_LINKS.map((link, i) => {
+                        const isCurrent = pathname === link.href;
+                        const isActive = isCurrent || pathname.startsWith(`${link.href}/`);
+                        return (
+                          <motion.div
+                            key={link.href}
+                            initial={reduced ? false : { opacity: 0, x: -16 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            transition={{ delay: reduced ? 0 : i * 0.05, duration: reduced ? 0 : 0.3 }}
+                          >
+                            <Link
+                              href={link.href}
+                              aria-current={isCurrent ? "page" : undefined}
+                              className={`flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-colors ${isActive
+                                ? "bg-blue-50 text-blue-600"
+                                : "text-gray-700 hover:bg-gray-50"
+                              }`}
+                              onNavigate={() => closeForNavigation(link.href)}
+                            >
+                              {link.label}
+                              {isActive && <div className="w-2 h-2 bg-blue-500 rounded-full" />}
+                            </Link>
+                          </motion.div>
+                        );
+                      })}
+                    </nav>
+
                     <motion.div
-                      key={link.href}
-                      initial={{ opacity: 0, x: -16 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: i * 0.05, duration: 0.3 }}
+                      initial={reduced ? false : { opacity: 0, y: 12 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: reduced ? 0 : NAV_LINKS.length * 0.05 + 0.1, duration: reduced ? 0 : undefined }}
+                      className="pt-2 border-t border-gray-100"
                     >
                       <Link
-                        href={link.href}
-                        className={`flex items-center justify-between px-4 py-3.5 rounded-xl font-medium transition-colors ${
-                          pathname.startsWith(link.href) && link.href !== "/"
-                            ? "bg-blue-50 text-blue-600"
-                            : "text-gray-700 hover:bg-gray-50"
-                        }`}
-                        onClick={() => setIsOpen(false)}
+                        href="/estimate"
+                        className="btn-primary w-full justify-center py-4"
+                        onNavigate={() => closeForNavigation("/estimate")}
+                        onClick={() => trackEvent("cta_click", { location: "mobile_menu", label: "무료 견적 받기" })}
                       >
-                        {link.label}
-                        {pathname.startsWith(link.href) && link.href !== "/" && (
-                          <div className="w-2 h-2 bg-blue-500 rounded-full" />
-                        )}
+                        무료 견적 받기
+                        <ArrowRight size={16} />
                       </Link>
                     </motion.div>
-                  ))}
-                </div>
-
-                <motion.div
-                  initial={{ opacity: 0, y: 12 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: NAV_LINKS.length * 0.05 + 0.1 }}
-                  className="pt-2 border-t border-gray-100"
-                >
-                  <Link
-                    href="/estimate"
-                    className="btn-primary w-full justify-center py-4"
-                    onClick={() => {
-                      setIsOpen(false);
-                      trackEvent("cta_click", { location: "mobile_menu", label: "무료 견적 받기" });
-                    }}
-                  >
-                    무료 견적 받기
-                    <ArrowRight size={16} />
-                  </Link>
+                  </div>
                 </motion.div>
-              </div>
-            </motion.div>
-          </>
-        )}
-      </AnimatePresence>
-    </>
+              </Dialog.Content>
+            </Dialog.Portal>
+          )}
+        </AnimatePresence>
+      )}
+    </Dialog.Root>
   );
 }

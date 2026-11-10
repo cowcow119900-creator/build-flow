@@ -1,5 +1,4 @@
 export const COMPANY_NAME = "Build Flow";
-export const COMPANY_TAGLINE = "홈페이지가 아니라, 고객을 만드는 디지털 시스템을 만듭니다.";
 export const COMPANY_PHONE = "010-5757-3980";
 export const COMPANY_EMAIL = "cowcow11990@gmail.com";
 
@@ -9,7 +8,24 @@ export const BUSINESS_INFO = {
   registrationNumber: "273-12-01987",
   address: "전북특별자치도 익산시 선화로11길 22, 302호(모현동1가)",
 };
-export const KAKAO_LINK = "#";
+const DEFAULT_KAKAO_CHAT_URL = "https://open.kakao.com/o/sHaPyoWi";
+
+function getKakaoChatUrl(value: string | undefined) {
+  if (!value) return undefined;
+
+  try {
+    const url = new URL(value);
+    const isChannelChat = url.hostname === "pf.kakao.com" && /^\/_\w+\/chat\/?$/.test(url.pathname);
+    const isOpenChat = url.hostname === "open.kakao.com" && /^\/o\/\w+\/?$/.test(url.pathname);
+    if (url.protocol === "https:" && !url.port && !url.username && !url.password && (isChannelChat || isOpenChat)) {
+      return url.href;
+    }
+  } catch {
+    return undefined;
+  }
+}
+
+export const KAKAO_CHAT_URL = getKakaoChatUrl(process.env.NEXT_PUBLIC_KAKAO_CHAT_URL) ?? DEFAULT_KAKAO_CHAT_URL;
 
 export const SERVICES = [
   {
@@ -19,6 +35,7 @@ export const SERVICES = [
     desc: "브랜드 신뢰와 전환을 동시에 잡는 기업 대표 사이트",
     features: ["반응형 디자인", "SEO 최적화", "CMS 연동", "성과 분석"],
     priceFrom: 150,
+    estimate: { legacyId: "corporate", label: "기업 홈페이지", icon: "🏢", max: 300, weeks: "3~6주", approach: "단계별 검수" },
   },
   {
     id: "landing-page",
@@ -27,6 +44,7 @@ export const SERVICES = [
     desc: "광고 전환율을 극대화하는 단일 목적 페이지",
     features: ["A/B 테스트", "전환 최적화", "빠른 로딩", "리드 수집"],
     priceFrom: 80,
+    estimate: { legacyId: "landing", label: "랜딩페이지", icon: "🚀", max: 200, weeks: "1~3주", approach: "빠른 출시" },
   },
   {
     id: "shopping-mall",
@@ -35,6 +53,7 @@ export const SERVICES = [
     desc: "상품 관리부터 결제까지 완전한 커머스 솔루션",
     features: ["상품 관리", "결제 연동", "재고 관리", "주문 추적"],
     priceFrom: 300,
+    estimate: { legacyId: "shopping", label: "쇼핑몰", icon: "🛒", max: 700, weeks: "6~10주", approach: "단계별 검수" },
   },
   {
     id: "reservation-system",
@@ -43,6 +62,7 @@ export const SERVICES = [
     desc: "병원, 강의, 서비스업 맞춤 예약·스케줄 관리",
     features: ["실시간 예약", "알림 발송", "캘린더 통합", "결제 연동"],
     priceFrom: 200,
+    estimate: { legacyId: "reservation", label: "예약 시스템", icon: "📅", max: 500, weeks: "5~8주", approach: "단계별 검수" },
   },
   {
     id: "admin-system",
@@ -51,6 +71,7 @@ export const SERVICES = [
     desc: "사업 운영에 필요한 맞춤 백오피스 구축",
     features: ["대시보드", "데이터 관리", "권한 설정", "통계 리포트"],
     priceFrom: 250,
+    estimate: { legacyId: "admin", label: "관리자 시스템", icon: "🖥️", max: 600, weeks: "3~6주", approach: "단계별 검수" },
   },
   {
     id: "renewal",
@@ -59,6 +80,7 @@ export const SERVICES = [
     desc: "낡은 사이트를 현대적 성과 중심 구조로 개선",
     features: ["UX 개선", "성능 최적화", "모바일 대응", "콘텐츠 재구성"],
     priceFrom: 120,
+    estimate: { legacyId: "renewal", label: "리뉴얼", icon: "🔄", max: 350, weeks: "3~6주", approach: "단계별 검수" },
   },
   {
     id: "saas-development",
@@ -67,6 +89,7 @@ export const SERVICES = [
     desc: "회원제 구독 서비스, 플랫폼 MVP 설계 및 개발",
     features: ["회원 인증", "구독 결제", "API 설계", "확장 구조"],
     priceFrom: 500,
+    estimate: { legacyId: "saas", label: "SaaS 개발", icon: "⚙️", max: 1500, weeks: "12~20주", approach: "Agile 스프린트" },
   },
   {
     id: "ai-automation",
@@ -75,83 +98,12 @@ export const SERVICES = [
     desc: "반복 업무 자동화와 AI 상담 챗봇 도입",
     features: ["AI 챗봇", "업무 자동화", "데이터 분석", "CRM 연동"],
     priceFrom: 180,
+    estimate: { legacyId: "ai", label: "AI 자동화", icon: "🤖", max: 450, weeks: "3~6주", approach: "단계별 검수" },
   },
-];
+] as const;
 
-export const PROCESS_STEPS = [
-  {
-    step: 1,
-    title: "무료 상담",
-    desc: "사업 목표와 필요 기능을 파악합니다",
-    duration: "1~2일",
-    prepare: "사업 소개자료, 참고 사이트",
-    icon: "MessageCircle",
-  },
-  {
-    step: 2,
-    title: "요구사항 분석",
-    desc: "기능 범위와 기술 스택을 설계합니다",
-    duration: "2~3일",
-    prepare: "업무 흐름, 필요 기능 목록",
-    icon: "Search",
-  },
-  {
-    step: 3,
-    title: "견적 및 일정 확정",
-    desc: "명확한 범위와 비용을 계약서로 확인합니다",
-    duration: "1일",
-    prepare: "계약 검토",
-    icon: "FileText",
-  },
-  {
-    step: 4,
-    title: "화면 설계",
-    desc: "사용자 흐름과 정보 구조를 설계합니다",
-    duration: "3~7일",
-    prepare: "콘텐츠 자료 준비",
-    icon: "Layers",
-  },
-  {
-    step: 5,
-    title: "디자인",
-    desc: "브랜드 정체성을 반영한 UI를 완성합니다",
-    duration: "5~10일",
-    prepare: "로고, 브랜드 가이드",
-    icon: "Palette",
-  },
-  {
-    step: 6,
-    title: "개발",
-    desc: "검증된 기술 스택으로 구현합니다",
-    duration: "10~30일",
-    prepare: "콘텐츠 최종 확정",
-    icon: "Code2",
-  },
-  {
-    step: 7,
-    title: "테스트",
-    desc: "기기별, 기능별 품질 검수를 진행합니다",
-    duration: "2~5일",
-    prepare: "테스트 시나리오 검토",
-    icon: "CheckCircle2",
-  },
-  {
-    step: 8,
-    title: "배포",
-    desc: "안정적인 서버 환경에 출시합니다",
-    duration: "1일",
-    prepare: "도메인, 호스팅 정보",
-    icon: "Globe",
-  },
-  {
-    step: 9,
-    title: "유지보수",
-    desc: "출시 후 운영 지원과 기능 확장을 합니다",
-    duration: "지속",
-    prepare: "운영 담당자 지정",
-    icon: "Wrench",
-  },
-];
+export type Service = (typeof SERVICES)[number];
+export type ServiceId = Service["id"];
 
 export const WHY_US = [
   {

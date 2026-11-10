@@ -1,119 +1,16 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { motion, AnimatePresence } from "motion/react";
-import { Calculator, ChevronRight, ChevronLeft, CheckCircle, ArrowRight, Zap } from "lucide-react";
+import { useState } from "react";
+import Link from "next/link";
+import { useSearchParams } from "next/navigation";
+import { motion, AnimatePresence, MotionConfig } from "motion/react";
+import { ChevronRight, ChevronLeft, CheckCircle, ArrowRight, Zap } from "lucide-react";
 import { trackEvent } from "@/lib/utils";
-import { useCountUp } from "@/hooks/useCountUp";
-
-type EstimateState = {
-  purpose: string;
-  designLevel: string;
-  features: string[];
-  hasAdmin: boolean;
-  hasMember: boolean;
-  hasPayment: boolean;
-  hasReservation: boolean;
-  timeline: string;
-  budget: string;
-};
-
-const PURPOSES = [
-  { value: "corporate", label: "기업 홈페이지", icon: "🏢", baseMin: 150, baseMax: 300 },
-  { value: "landing", label: "랜딩페이지", icon: "🚀", baseMin: 80, baseMax: 200 },
-  { value: "shopping", label: "쇼핑몰", icon: "🛒", baseMin: 300, baseMax: 700 },
-  { value: "reservation", label: "예약 시스템", icon: "📅", baseMin: 200, baseMax: 500 },
-  { value: "admin", label: "관리자 시스템", icon: "🖥️", baseMin: 250, baseMax: 600 },
-  { value: "renewal", label: "리뉴얼", icon: "🔄", baseMin: 120, baseMax: 350 },
-  { value: "saas", label: "SaaS 개발", icon: "⚙️", baseMin: 500, baseMax: 1500 },
-  { value: "ai", label: "AI 자동화", icon: "🤖", baseMin: 180, baseMax: 450 },
-];
-
-const DESIGN_LEVELS = [
-  { value: "standard", label: "스탠다드", desc: "기능 중심 깔끔한 디자인", add: 0 },
-  { value: "premium", label: "프리미엄", desc: "브랜드 맞춤 고퀄리티", add: 80 },
-  { value: "enterprise", label: "엔터프라이즈", desc: "모션·인터랙션 포함 최상급", add: 200 },
-];
-
-const EXTRA_FEATURES = [
-  { value: "cms", label: "CMS 콘텐츠 관리", add: 50 },
-  { value: "multilang", label: "다국어 지원", add: 80 },
-  { value: "seo", label: "SEO 최적화", add: 60 },
-  { value: "analytics", label: "GA4 / 통계", add: 40 },
-  { value: "chatbot", label: "AI 챗봇 연동", add: 120 },
-  { value: "email", label: "이메일 자동화", add: 50 },
-];
-
-const TIMELINES = [
-  { value: "urgent", label: "1개월 이내", surcharge: 30 },
-  { value: "normal", label: "1~2개월", surcharge: 0 },
-  { value: "relaxed", label: "2~3개월", surcharge: 0 },
-  { value: "flexible", label: "일정 협의", surcharge: 0 },
-];
-
-const BUDGETS = [
-  { value: "under100", label: "100만원 미만" },
-  { value: "100-300", label: "100~300만원" },
-  { value: "300-500", label: "300~500만원" },
-  { value: "500-1000", label: "500~1000만원" },
-  { value: "over1000", label: "1000만원 이상" },
-  { value: "undecided", label: "미정 / 협의" },
-];
-
-function computeRange(state: EstimateState) {
-  const purpose = PURPOSES.find((p) => p.value === state.purpose);
-  if (!purpose) return { min: 0, max: 0, weeks: "-", difficulty: "-", approach: "-" };
-
-  let min = purpose.baseMin, max = purpose.baseMax;
-  const design = DESIGN_LEVELS.find((d) => d.value === state.designLevel);
-  if (design) { min += design.add; max += design.add + 50; }
-  if (state.hasAdmin) { min += 80; max += 150; }
-  if (state.hasMember) { min += 60; max += 100; }
-  if (state.hasPayment) { min += 80; max += 150; }
-  if (state.hasReservation) { min += 100; max += 180; }
-  state.features.forEach((f) => {
-    const feat = EXTRA_FEATURES.find((x) => x.value === f);
-    if (feat) { min += feat.add; max += feat.add + 20; }
-  });
-  const tl = TIMELINES.find((t) => t.value === state.timeline);
-  if (tl?.surcharge) { min += tl.surcharge; max += tl.surcharge; }
-
-  const weeks = state.purpose === "saas" ? "12~20주" : state.purpose === "shopping" ? "6~10주" :
-    state.purpose === "reservation" ? "5~8주" : state.purpose === "landing" ? "1~3주" : "3~6주";
-  const difficulty = min > 600 ? "높음" : min > 300 ? "중간" : "낮음";
-  const approach = state.purpose === "saas" ? "Agile 스프린트" : state.purpose === "landing" ? "빠른 출시" : "단계별 검수";
-
-  return { min, max, weeks, difficulty, approach };
-}
-
-// Animated number that counts to target
-function LiveNumber({ value, suffix = "만원" }: { value: number; suffix?: string }) {
-  const [displayed, setDisplayed] = useState(value);
-  const prevRef = useRef(value);
-  const rafRef = useRef<number>(0);
-
-  useEffect(() => {
-    const start = prevRef.current;
-    const end = value;
-    if (start === end) return;
-    const startTime = performance.now();
-    const duration = 600;
-
-    const step = (now: number) => {
-      const progress = Math.min((now - startTime) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3);
-      setDisplayed(Math.round(start + (end - start) * eased));
-      if (progress < 1) rafRef.current = requestAnimationFrame(step);
-      else { setDisplayed(end); prevRef.current = end; }
-    };
-    cancelAnimationFrame(rafRef.current);
-    rafRef.current = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(rafRef.current);
-  }, [value]);
-
-  return <span>{displayed.toLocaleString()}{suffix}</span>;
-}
+import {
+  BUDGETS, CORE_FEATURES, DESIGN_LEVELS, EXTRA_FEATURES, PURPOSES, TIMELINES,
+  computeRange, createEstimateState, getEstimateContactHref, normalizeServiceId,
+  type EstimateState, type ExtraFeature,
+} from "@/lib/estimate";
 
 // Live estimate panel (shown alongside steps 1-3)
 function EstimatePanel({ state }: { state: EstimateState }) {
@@ -135,10 +32,8 @@ function EstimatePanel({ state }: { state: EstimateState }) {
         <>
           <div className="mb-4">
             <p className="text-blue-200 text-xs mb-1">예상 비용</p>
-            <p className="text-2xl font-black">
-              <LiveNumber value={est.min} />
-              <span className="text-lg"> ~ </span>
-              <LiveNumber value={est.max} />
+            <p className="text-2xl font-black" aria-live="polite">
+              {est.min.toLocaleString("ko-KR")}만원 <span className="text-lg">~</span> {est.max.toLocaleString("ko-KR")}만원
             </p>
             <p className="text-blue-300 text-xs mt-0.5">VAT 별도</p>
           </div>
@@ -192,27 +87,24 @@ function EstimatePanel({ state }: { state: EstimateState }) {
 const STEP_LABELS = ["제작 유형", "기능 선택", "일정·예산", "결과 확인"];
 
 export default function EstimateCalculator() {
-  const router = useRouter();
   const searchParams = useSearchParams();
-  const [step, setStep] = useState(1);
-  const [analyzing, setAnalyzing] = useState(false);
-  const totalSteps = 4;
+  const purpose = normalizeServiceId(searchParams.get("service"));
+  return (
+    <MotionConfig reducedMotion="user">
+      <EstimateSteps key={purpose} purpose={purpose} />
+    </MotionConfig>
+  );
+}
 
-  const [state, setState] = useState<EstimateState>({
-    purpose: searchParams.get("service") || "",
-    designLevel: "standard",
-    features: [],
-    hasAdmin: false,
-    hasMember: false,
-    hasPayment: false,
-    hasReservation: false,
-    timeline: "normal",
-    budget: "undecided",
-  });
+function EstimateSteps({ purpose }: { purpose: EstimateState["purpose"] }) {
+  const [step, setStep] = useState(1);
+  const totalSteps = STEP_LABELS.length;
+
+  const [state, setState] = useState(() => createEstimateState(purpose));
 
   const result = computeRange(state);
 
-  const toggleFeature = (val: string) => {
+  const toggleFeature = (val: ExtraFeature) => {
     setState((prev) => ({
       ...prev,
       features: prev.features.includes(val)
@@ -221,30 +113,12 @@ export default function EstimateCalculator() {
     }));
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
+    if (!state.purpose) return;
     if (step === 3) {
-      setAnalyzing(true);
       trackEvent("estimate_complete", { purpose: state.purpose });
-      await new Promise((r) => setTimeout(r, 1500));
-      setAnalyzing(false);
     }
-    setStep((s) => Math.min(s + 1, totalSteps));
-  };
-
-  const handleContactRedirect = () => {
-    const params = new URLSearchParams({
-      purpose: state.purpose,
-      designLevel: state.designLevel,
-      features: state.features.join(","),
-      hasAdmin: String(state.hasAdmin),
-      hasMember: String(state.hasMember),
-      hasPayment: String(state.hasPayment),
-      hasReservation: String(state.hasReservation),
-      timeline: state.timeline,
-      budget: state.budget,
-    });
-    trackEvent("contact_form_entry", { source: "estimate" });
-    router.push(`/contact?${params.toString()}`);
+    setStep(Math.min(step + 1, totalSteps));
   };
 
   const inputBase = "p-3 rounded-xl border-2 text-left transition-all text-sm font-medium cursor-pointer";
@@ -261,6 +135,7 @@ export default function EstimateCalculator() {
             {STEP_LABELS.map((label, i) => (
               <div
                 key={label}
+                aria-current={i + 1 === step ? "step" : undefined}
                 className={`flex items-center gap-2 text-sm font-semibold ${
                   i + 1 <= step ? "text-blue-600" : "text-gray-300"
                 }`}
@@ -278,7 +153,7 @@ export default function EstimateCalculator() {
                 >
                   {i + 1 < step ? <CheckCircle size={14} /> : i + 1}
                 </motion.div>
-                <span className="hidden sm:block">{label}</span>
+                <span className="sr-only sm:not-sr-only">{label}</span>
               </div>
             ))}
           </div>
@@ -293,23 +168,8 @@ export default function EstimateCalculator() {
 
         {/* Step content with slide transition */}
         <AnimatePresence mode="wait">
-          {/* Analyzing overlay */}
-          {analyzing && (
-            <motion.div
-              key="analyzing"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="flex flex-col items-center justify-center py-20"
-            >
-              <div className="w-16 h-16 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin mb-5" />
-              <p className="text-gray-700 font-bold text-lg mb-2">프로젝트 범위를 분석하고 있습니다</p>
-              <p className="text-gray-400 text-sm">선택하신 기능을 바탕으로 최적의 견적을 산출합니다...</p>
-            </motion.div>
-          )}
-
           {/* Step 1 */}
-          {!analyzing && step === 1 && (
+          {step === 1 && (
             <motion.div
               key="step1"
               initial={{ opacity: 0, x: 20 }}
@@ -323,6 +183,7 @@ export default function EstimateCalculator() {
                 {PURPOSES.map((p) => (
                   <motion.button
                     key={p.value}
+                    aria-pressed={state.purpose === p.value}
                     onClick={() => setState((prev) => ({ ...prev, purpose: p.value }))}
                     className={`${inputBase} ${state.purpose === p.value ? inputActive : inputIdle}`}
                     whileHover={{ scale: 1.02 }}
@@ -342,7 +203,7 @@ export default function EstimateCalculator() {
           )}
 
           {/* Step 2 */}
-          {!analyzing && step === 2 && (
+          {step === 2 && (
             <motion.div
               key="step2"
               initial={{ opacity: 0, x: 20 }}
@@ -357,21 +218,17 @@ export default function EstimateCalculator() {
                 <div>
                   <p className="text-sm font-semibold text-gray-700 mb-3">핵심 기능</p>
                   <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { key: "hasAdmin" as const, label: "관리자 페이지", add: "+80만원~" },
-                      { key: "hasMember" as const, label: "회원가입 / 로그인", add: "+60만원~" },
-                      { key: "hasPayment" as const, label: "결제 기능", add: "+80만원~" },
-                      { key: "hasReservation" as const, label: "예약 기능", add: "+100만원~" },
-                    ].map((opt) => (
+                    {CORE_FEATURES.map((opt) => (
                       <motion.button
                         key={opt.key}
+                        aria-pressed={state[opt.key]}
                         onClick={() => setState((prev) => ({ ...prev, [opt.key]: !prev[opt.key] }))}
                         className={`${inputBase} ${state[opt.key] ? inputActive : inputIdle}`}
                         whileHover={{ scale: 1.02 }}
                         whileTap={{ scale: 0.97 }}
                       >
                         <span className="block">{state[opt.key] ? "✓ " : ""}{opt.label}</span>
-                        <span className="text-xs text-gray-400 mt-0.5 block">{opt.add}</span>
+                        <span className="text-xs text-gray-400 mt-0.5 block">+{opt.min}만원~</span>
                       </motion.button>
                     ))}
                   </div>
@@ -383,6 +240,7 @@ export default function EstimateCalculator() {
                     {DESIGN_LEVELS.map((d) => (
                       <motion.button
                         key={d.value}
+                        aria-pressed={state.designLevel === d.value}
                         onClick={() => setState((prev) => ({ ...prev, designLevel: d.value }))}
                         className={`w-full flex items-center justify-between ${inputBase} ${state.designLevel === d.value ? inputActive : inputIdle}`}
                         whileHover={{ scale: 1.01 }}
@@ -404,6 +262,7 @@ export default function EstimateCalculator() {
                     {EXTRA_FEATURES.map((f) => (
                       <motion.button
                         key={f.value}
+                        aria-pressed={state.features.includes(f.value)}
                         onClick={() => toggleFeature(f.value)}
                         className={`${inputBase} ${state.features.includes(f.value) ? inputActive : inputIdle}`}
                         whileHover={{ scale: 1.02 }}
@@ -420,7 +279,7 @@ export default function EstimateCalculator() {
           )}
 
           {/* Step 3 */}
-          {!analyzing && step === 3 && (
+          {step === 3 && (
             <motion.div
               key="step3"
               initial={{ opacity: 0, x: 20 }}
@@ -437,6 +296,7 @@ export default function EstimateCalculator() {
                     {TIMELINES.map((t) => (
                       <motion.button
                         key={t.value}
+                        aria-pressed={state.timeline === t.value}
                         onClick={() => setState((prev) => ({ ...prev, timeline: t.value }))}
                         className={`${inputBase} ${state.timeline === t.value ? inputActive : inputIdle}`}
                         whileHover={{ scale: 1.02 }}
@@ -456,6 +316,7 @@ export default function EstimateCalculator() {
                     {BUDGETS.map((b) => (
                       <motion.button
                         key={b.value}
+                        aria-pressed={state.budget === b.value}
                         onClick={() => setState((prev) => ({ ...prev, budget: b.value }))}
                         className={`${inputBase} ${state.budget === b.value ? inputActive : inputIdle}`}
                         whileHover={{ scale: 1.02 }}
@@ -471,7 +332,7 @@ export default function EstimateCalculator() {
           )}
 
           {/* Step 4: Result */}
-          {!analyzing && step === 4 && (
+          {step === 4 && (
             <motion.div
               key="step4"
               initial={{ opacity: 0, scale: 0.97 }}
@@ -499,7 +360,7 @@ export default function EstimateCalculator() {
               >
                 <p className="text-blue-200 text-sm mb-2">예상 제작 비용</p>
                 <p className="text-4xl font-black mb-1">
-                  {result.min.toLocaleString()}~{result.max.toLocaleString()}만원
+                  {result.min.toLocaleString("ko-KR")}~{result.max.toLocaleString("ko-KR")}만원
                 </p>
                 <p className="text-blue-200 text-sm">VAT 별도</p>
               </motion.div>
@@ -527,23 +388,20 @@ export default function EstimateCalculator() {
                 * 실제 견적은 상담 후 요구사항 분석을 통해 확정됩니다.
               </p>
 
-              <motion.button
-                onClick={handleContactRedirect}
+              <Link
+                href={getEstimateContactHref(state)}
+                onClick={() => trackEvent("contact_entry", { source: "estimate" })}
                 className="btn-primary w-full py-4 text-base justify-center"
-                whileHover={{ scale: 1.02, boxShadow: "0 8px 30px rgba(29,91,231,0.35)" }}
-                whileTap={{ scale: 0.98 }}
-                animate={{ boxShadow: ["0 4px 16px rgba(29,91,231,0.2)", "0 8px 32px rgba(29,91,231,0.35)", "0 4px 16px rgba(29,91,231,0.2)"] }}
-                transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               >
-                이 내용으로 무료 상담 신청하기
+                이 내용으로 무료 상담 문의하기
                 <ArrowRight size={18} />
-              </motion.button>
+              </Link>
             </motion.div>
           )}
         </AnimatePresence>
 
         {/* Navigation */}
-        {!analyzing && step < 4 && (
+        {step < totalSteps && (
           <div className="flex justify-between mt-8">
             <motion.button
               onClick={() => setStep((s) => Math.max(s - 1, 1))}
@@ -572,7 +430,7 @@ export default function EstimateCalculator() {
       </div>
 
       {/* Live estimate panel — hide on step 4 */}
-      {step < 4 && (
+      {step < totalSteps && (
         <div className="hidden lg:block">
           <EstimatePanel state={state} />
         </div>

@@ -22,7 +22,7 @@ export default function EstimatePage() {
           <p className="text-gray-500 text-lg max-w-md mx-auto">
             원하는 기능을 선택하면 예상 제작 비용과 기간을 바로 알 수 있습니다.
             <br className="hidden sm:block" />
-            결과는 상담 신청 시 자동으로 반영됩니다.
+            결과를 상담 화면에서 복사해 문의에 첨부할 수 있습니다.
           </p>
         </div>
 
@@ -41,6 +41,7 @@ export default function EstimatePage() {
           <ul className="text-blue-700 text-sm space-y-1 list-disc list-inside">
             <li>예상 금액은 실제 범위와 ±20% 차이가 날 수 있습니다.</li>
             <li>정확한 견적은 요구사항 분석 후 확정됩니다.</li>
+            <li>희망 일정은 예상 제작 기간과 다를 수 있으며, 예산은 상담 참고용입니다.</li>
             <li>VAT(부가세) 10%는 별도입니다.</li>
           </ul>
         </div>

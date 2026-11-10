@@ -15,8 +15,7 @@ export function useCountUp(
   const startRef = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!inView) return;
-    if (reduced) { setValue(target); return; }
+    if (!inView || reduced) return;
 
     startRef.current = null;
     const step = (ts: number) => {
@@ -30,5 +29,5 @@ export function useCountUp(
     return () => cancelAnimationFrame(rafRef.current);
   }, [inView, target, duration, reduced, decimals]);
 
-  return value;
+  return inView && reduced ? target : value;
 }

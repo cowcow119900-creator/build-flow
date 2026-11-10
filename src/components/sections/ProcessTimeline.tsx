@@ -75,46 +75,60 @@ const STEPS = [
   },
 ];
 
+const SCROLL_TIMELINE_QUERY = "(min-width: 48rem) and (prefers-reduced-motion: no-preference)";
+
 export default function ProcessTimeline() {
   const reduced = useReducedMotion();
   const [activeStep, setActiveStep] = useState(0);
   const sectionRef = useRef<HTMLElement>(null);
-  const contentRef = useRef<HTMLDivElement>(null);
-
   // Desktop: GSAP-driven scroll to advance steps
   useEffect(() => {
-    if (reduced || typeof window === "undefined") return;
-    const isMobile = window.innerWidth < 768;
-    if (isMobile) return;
+    const media = window.matchMedia(SCROLL_TIMELINE_QUERY);
+    let mounted = true;
+    let removeTriggers: (() => void) | undefined;
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let gsapInstance: any = null;
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    let ScrollTrigger: any = null;
-    let triggers: { kill: () => void }[] = [];
+    function clearTriggers() {
+      removeTriggers?.();
+      removeTriggers = undefined;
+    }
 
-    import("gsap").then((mod) => {
-      gsapInstance = mod.gsap ?? mod.default ?? mod;
-      return import("gsap/ScrollTrigger");
-    }).then((mod) => {
-      ScrollTrigger = mod.ScrollTrigger;
-      if (!gsapInstance || !ScrollTrigger || !sectionRef.current) return;
-      gsapInstance.registerPlugin(ScrollTrigger);
+    async function startTriggers() {
+      const [{ gsap }, { ScrollTrigger }] = await Promise.all([import("gsap"), import("gsap/ScrollTrigger")]);
+      const section = sectionRef.current;
+      if (!mounted || !media.matches || removeTriggers || !section) return;
+
+      gsap.registerPlugin(ScrollTrigger);
+      const triggers: ReturnType<typeof ScrollTrigger.create>[] = [];
+      removeTriggers = () => triggers.forEach((trigger) => trigger.kill());
 
       STEPS.forEach((_, i) => {
-        const trigger = ScrollTrigger.create({
-          trigger: sectionRef.current,
+        triggers.push(ScrollTrigger.create({
+          trigger: section,
           start: `${(i / STEPS.length) * 80}% center`,
           end: `${((i + 1) / STEPS.length) * 80}% center`,
           onEnter: () => setActiveStep(i),
           onEnterBack: () => setActiveStep(i),
-        });
-        triggers.push(trigger as { kill: () => void });
+        }));
       });
-    });
+    }
 
-    return () => { triggers.forEach((t) => t.kill()); };
-  }, [reduced]);
+    function syncTriggers() {
+      if (media.matches) {
+        // Keep the step buttons usable if the animation chunk cannot load.
+        void startTriggers().catch(clearTriggers);
+      } else {
+        clearTriggers();
+      }
+    }
+
+    media.addEventListener("change", syncTriggers);
+    syncTriggers();
+    return () => {
+      mounted = false;
+      media.removeEventListener("change", syncTriggers);
+      clearTriggers();
+    };
+  }, []);
 
   const active = STEPS[activeStep];
   const ActiveIcon = active.icon;
@@ -151,8 +165,9 @@ export default function ProcessTimeline() {
                 <div className="h-1 bg-gray-100 rounded-full overflow-hidden">
                   <motion.div
                     className="h-full bg-blue-600 rounded-full"
+                    initial={false}
                     animate={{ width: `${progress}%` }}
-                    transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                    transition={{ duration: reduced ? 0 : 0.5, ease: [0.25, 0.1, 0.25, 1] }}
                   />
                 </div>
               </div>
@@ -163,8 +178,9 @@ export default function ProcessTimeline() {
               <div className="absolute left-4 top-0 bottom-0 w-0.5 bg-gray-100" />
               <motion.div
                 className="absolute left-4 top-0 w-0.5 bg-blue-500 origin-top"
+                initial={false}
                 animate={{ height: `${progress}%` }}
-                transition={{ duration: 0.5, ease: [0.25, 0.1, 0.25, 1] }}
+                transition={{ duration: reduced ? 0 : 0.5, ease: [0.25, 0.1, 0.25, 1] }}
               />
 
               <div className="space-y-1">
@@ -173,21 +189,24 @@ export default function ProcessTimeline() {
                   const isActive = i === activeStep;
                   const isDone = i < activeStep;
                   return (
-                    <motion.button
+                    <button
                       key={step.step}
+                      type="button"
+                      aria-current={isActive ? "step" : undefined}
+                      aria-controls="process-step-detail"
                       className={`relative w-full flex items-center gap-3 px-3 py-2.5 rounded-xl transition-all text-left ${
                         isActive ? "bg-blue-50" : "hover:bg-gray-50"
                       }`}
                       onClick={() => setActiveStep(i)}
-                      animate={{ opacity: 1 }}
                     >
                       {/* Dot */}
                       <motion.div
                         className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 z-10 transition-colors ${
                           isActive ? "bg-blue-600" : isDone ? "bg-blue-200" : "bg-gray-100"
                         }`}
+                        initial={false}
                         animate={{ scale: isActive ? 1.1 : 1 }}
-                        transition={{ type: "spring", stiffness: 400, damping: 20 }}
+                        transition={reduced ? { duration: 0 } : { type: "spring", stiffness: 400, damping: 20 }}
                       >
                         <StepIcon
                           size={14}
@@ -205,7 +224,7 @@ export default function ProcessTimeline() {
                       {isDone && (
                         <CheckCircle2 size={14} className="text-blue-400 flex-shrink-0" />
                       )}
-                    </motion.button>
+                    </button>
                   );
                 })}
               </div>
@@ -213,14 +232,14 @@ export default function ProcessTimeline() {
           </div>
 
           {/* Right: Active step detail */}
-          <div ref={contentRef} className="col-span-3">
-            <AnimatePresence mode="wait">
+          <div id="process-step-detail" className="col-span-3">
+            <AnimatePresence initial={false} mode="wait">
               <motion.div
                 key={activeStep}
-                initial={{ opacity: 0, y: 16 }}
+                initial={reduced ? false : { opacity: 0, y: 16 }}
                 animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -16 }}
-                transition={{ duration: 0.35, ease: [0.25, 0.1, 0.25, 1] }}
+                exit={reduced ? undefined : { opacity: 0, y: -16 }}
+                transition={{ duration: reduced ? 0 : 0.35, ease: [0.25, 0.1, 0.25, 1] }}
                 className="bg-white rounded-3xl border-2 border-gray-100 p-8 h-full"
               >
                 {/* Step header */}
@@ -252,7 +271,7 @@ export default function ProcessTimeline() {
                     {active.deliverables.map((d) => (
                       <motion.span
                         key={d}
-                        initial={{ opacity: 0, scale: 0.85 }}
+                        initial={reduced ? false : { opacity: 0, scale: 0.85 }}
                         animate={{ opacity: 1, scale: 1 }}
                         className="flex items-center gap-1.5 bg-blue-50 text-blue-700 text-sm px-3 py-1.5 rounded-full font-medium"
                       >
@@ -266,9 +285,9 @@ export default function ProcessTimeline() {
                 {/* Last step CTA */}
                 {activeStep === STEPS.length - 1 && (
                   <motion.div
-                    initial={{ opacity: 0, y: 12 }}
+                    initial={reduced ? false : { opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.3 }}
+                    transition={reduced ? { duration: 0 } : { delay: 0.3 }}
                     className="mt-6 pt-6 border-t border-gray-100"
                   >
                     <p className="text-gray-600 mb-3 font-medium">

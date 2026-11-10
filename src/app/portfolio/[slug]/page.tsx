@@ -1,8 +1,9 @@
 import Link from "next/link";
-import { ArrowLeft, ArrowRight, Clock, Layers, CheckCircle } from "lucide-react";
+import { ArrowDownRight, ArrowLeft, ArrowRight, Clock, Layers, CheckCircle } from "lucide-react";
 import { notFound } from "next/navigation";
 import { FlowStory } from "@/components/flow/FlowStory";
 import { getPortfolioFlow } from "@/components/flow/PortfolioFlowScenes";
+import { getPortfolioSystemPreview, PortfolioSystemPreview } from "@/components/portfolio/PortfolioSystemPreview";
 import { getPortfolioItem, PORTFOLIO_ITEMS } from "@/lib/portfolio";
 
 type Props = {
@@ -29,6 +30,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
   if (!item) notFound();
   const { detail } = item;
   const flow = getPortfolioFlow(item.id);
+  const systemPreview = getPortfolioSystemPreview(item.id);
   const features = detail?.features ?? item.features.map((name) => ({ name, desc: undefined }));
   const results = detail?.results ?? [item.result];
 
@@ -65,6 +67,14 @@ export default async function PortfolioDetailPage({ params }: Props) {
                 </div>
               </dl>
               <p className="mt-3 text-xs text-slate-400">가상 시나리오 기반 데모</p>
+              {systemPreview && (
+                <a
+                  href="#system-preview"
+                  className="mt-2 inline-flex min-h-11 items-center gap-2 rounded text-sm font-semibold text-cyan-200 underline underline-offset-4 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-cyan-200"
+                >
+                  시스템 화면 미리보기 <ArrowDownRight size={16} aria-hidden="true" />
+                </a>
+              )}
             </div>
 
             {flow && <FlowStory {...flow} autoPlay className="min-w-0" />}
@@ -73,6 +83,7 @@ export default async function PortfolioDetailPage({ params }: Props) {
       </section>
 
       <div className="section-container">
+        {systemPreview && <PortfolioSystemPreview preview={systemPreview} />}
         <div className="grid grid-cols-1 gap-6 pt-8 lg:grid-cols-3 lg:gap-8 lg:pt-10">
           <div className="lg:col-span-2 space-y-8">
             {detail && (
